@@ -1,12 +1,14 @@
 services:
-  db:
-    image: postgres
+  mongo:
+    image: mongo
     restart: always
     environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     ports:
-      - 5432:5432
+      - 27017:27017
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - mongo_data:/data/db
+
 volumes:
-  postgres_data:
+  mongo_data:

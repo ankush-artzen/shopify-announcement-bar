@@ -3,12 +3,12 @@
 client_id = "42981728df5709e8343aa4350572a918"
 name = "optimized-account-app"
 handle = "optimized-account-app-6"
-application_url = "https://example.com/"
+application_url = "https://sunny-nicole-adopt-bumper.trycloudflare.com"
 embedded = true
 
 [build]
 automatically_update_urls_on_dev = true
-dev_store_url = "matts-tech-test.myshopify.com"
+dev_store_url = "demo-sample-store-1.myshopify.com"
 include_config_on_deploy = true
 
 [webhooks]
@@ -24,7 +24,11 @@ scopes = ""
 use_legacy_install_flow = false
 
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [
+  "https://sunny-nicole-adopt-bumper.trycloudflare.com/auth/callback",
+  "https://sunny-nicole-adopt-bumper.trycloudflare.com/auth/shopify/callback",
+  "https://sunny-nicole-adopt-bumper.trycloudflare.com/api/auth/callback"
+]
 
 [pos]
 embedded = false
