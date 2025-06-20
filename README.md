@@ -1,11 +1,8 @@
-# Shopify App Template - Next.js App Router
+# 🛍️ Shopify App Template – Next.js App Router
 
-This is a template for building a
-[Shopify app](https://shopify.dev/apps/getting-started) using Next.js and
-Typescript. It contains the basics for building a Shopify app on Next.js using
-the app router and server components.
+This template is built for creating high-performance Shopify Embedded Apps using the Next.js App Router and TypeScript. It supports flexible database integration and provides all the necessary tooling for fast local development, smooth deployment, and Shopify ecosystem compatibility.
 
-## Features
+## ✨ Features
 
 - **Next.js**: Using the latest app router and server components.
 - **Prisma (Optional)**: For managing database connections and migrations.
@@ -15,7 +12,7 @@ the app router and server components.
 - **Polaris React**: For building high quality, consistent experiences for
   Shopify merchants.
 - **Tailwind CSS**: For fast, flexible styling and design.
-- **Docker (Optional)**: For setting up the postgres database for local
+- **Docker (Optional)**: For setting up the database for local
   development.
 - **Graphql-Codegen**: For generating types for graphql queries and mutations.
 
@@ -27,6 +24,8 @@ Using pnpm (recommended):
 
 ```shell
 git clone https://github.com/navjot-artzen/next-template-prisma.git
+cd next-template-prisma
+pnpm install
 ```
 
 This will clone the template and install the required dependencies.
@@ -146,7 +145,7 @@ pnpm run graphql-codegen
 This sets up your types when using Apollo client and gives your intellisense in
 your IDE.
 
-## Deployment
+## 🚢 Deployment (Vercel Recommended)
 
 You can deploy this app to a hosting service of your choice. Here is the basic
 setup for deploying to Vercel:
@@ -175,11 +174,11 @@ pnpm run deploy
 
 This template uses Prisma to store and manage sessions. For more information on
 how to set up Prisma, see the
-[Prisma documentation](https://www.prisma.io/docs/getting-started/setup-prisma/start-from-scratch-typescript-postgres).
+[Prisma documentation](https://www.prisma.io/docs/getting-started/setup-prisma/start-from-scratch).
 
-## Developer resources
+## 📚 Developer Resources
 
-- [Introduction to Shopify apps](https://shopify.dev/apps/getting-started)
+- [Shopify App Dev Docs](https://shopify.dev/apps/getting-started)
 - [App authentication](https://shopify.dev/apps/auth)
 - [Shopify CLI](https://shopify.dev/apps/tools/cli)
 - [Shopify API Library documentation](https://github.com/Shopify/shopify-api-node/tree/main/docs)
