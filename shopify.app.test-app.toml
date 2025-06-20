@@ -1,0 +1,33 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "8e80e8f79549c9b5f63321da68c7f33e"
+name = "TEST-APP"
+handle = "test-app-12210"
+application_url = "https://china-ah-rc-party.trycloudflare.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "karan-working.myshopify.com"
+include_config_on_deploy = true
+
+[access.admin]
+direct_api_mode = "offline"
+embedded_app_direct_api_access = true
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_orders,write_orders,write_products"
+
+[auth]
+redirect_urls = [
+  "https://china-ah-rc-party.trycloudflare.com/auth/callback",
+  "https://china-ah-rc-party.trycloudflare.com/auth/shopify/callback",
+  "https://china-ah-rc-party.trycloudflare.com/api/auth/callback"
+]
+
+[webhooks]
+api_version = "2024-07"
+
+[pos]
+embedded = false

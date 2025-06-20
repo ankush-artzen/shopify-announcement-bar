@@ -1,4 +1,4 @@
-import Home from "./client.page";
+import Home from "./users.page";
 
 export default async function Page({
   params,
