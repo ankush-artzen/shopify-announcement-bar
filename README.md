@@ -26,7 +26,7 @@ This template can be installed using your preferred package manager:
 Using pnpm (recommended):
 
 ```shell
-pnpx @shopify/create-app@latest --template https://github.com/ozzyonfire/shopify-next-app.git
+git clone https://github.com/navjot-artzen/next-template-prisma.git
 ```
 
 This will clone the template and install the required dependencies.
@@ -82,7 +82,6 @@ Next.js app) and add the following lines;
 
 ```bash
 DATABASE_URL= # database connection string - for connecting to prisma
-POSTGRES_PASSWORD= # optional database password - when running postgres db locally through docker
 ```
 
 The first two variables are automatically populated by the Shopify CLI.

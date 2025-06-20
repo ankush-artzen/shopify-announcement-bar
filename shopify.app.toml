@@ -1,14 +1,14 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "42981728df5709e8343aa4350572a918"
-name = "optimized-account-app"
-handle = "optimized-account-app-6"
-application_url = "https://sunny-nicole-adopt-bumper.trycloudflare.com"
+client_id = "ee6168206fe0f99ba138522cecdaa717"
+application_url = "https://roles-authority-blackberry-expenses.trycloudflare.com"
 embedded = true
+name = "next-test-app"
+handle = "next-test-app-5"
 
 [build]
 automatically_update_urls_on_dev = true
-dev_store_url = "demo-sample-store-1.myshopify.com"
+dev_store_url = "karan-working.myshopify.com"
 include_config_on_deploy = true
 
 [webhooks]
@@ -20,14 +20,14 @@ embedded_app_direct_api_access = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = ""
+scopes = "write_products"
 use_legacy_install_flow = false
 
 [auth]
 redirect_urls = [
-  "https://sunny-nicole-adopt-bumper.trycloudflare.com/auth/callback",
-  "https://sunny-nicole-adopt-bumper.trycloudflare.com/auth/shopify/callback",
-  "https://sunny-nicole-adopt-bumper.trycloudflare.com/api/auth/callback"
+  "https://roles-authority-blackberry-expenses.trycloudflare.com/auth/callback",
+  "https://roles-authority-blackberry-expenses.trycloudflare.com/auth/shopify/callback",
+  "https://roles-authority-blackberry-expenses.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
