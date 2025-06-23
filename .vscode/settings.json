@@ -1,5 +1,6 @@
 {
   "eslint.workingDirectories": [
     "./web"
-  ]
+  ],
+  "postman.settings.dotenv-detection-notification-visibility": false
 }

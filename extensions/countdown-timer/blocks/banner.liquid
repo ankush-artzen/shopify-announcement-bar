@@ -1,0 +1,162 @@
+<div class="countdown-timer"
+  data-end-date="{{ block.settings.end_date }}"
+  style="
+    background: {{ block.settings.bg_color }};
+    color: {{ block.settings.text_color }};
+    border-radius: 8px;
+    padding: 20px;
+    margin: 15px 0;
+    text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  "
+>
+  {% if block.settings.custom_heading != blank %}
+    <h3 style="
+      font-size: 1.5em;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: {{ block.settings.text_color }};
+    ">
+      {{ block.settings.custom_heading }}
+    </h3>
+  {% endif %}
+
+  <h4 style="
+    color: {{ block.settings.text_color }};
+    font-size: 1.3em;
+    margin: 0 0 15px 0;
+    font-weight: 600;
+  ">
+    {{ block.settings.title }}
+  </h4>
+
+  {% if block.settings.end_date != blank %}
+    <div class="timer-display" style="
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin: 0 auto;
+      max-width: 500px;
+    ">
+      {% assign units = "Days,Hours,Minutes,Seconds" | split: "," %}
+      {% for unit in units %}
+        <div class="timer-block" style="display: flex; flex-direction: column; min-width: 70px;">
+          <span class="timer-block__num js-timer-{{ unit | downcase }}" style="
+            background: #ffffff;
+            border-radius: 4px;
+            color: {{ block.settings.text_color }};
+            font-size: 1.8em;
+            font-weight: 700;
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+          ">00</span>
+          <span class="timer-block__unit" style="
+            color: {{ block.settings.text_color }};
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          ">{{ unit }}</span>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="timer-expired-message" style="display: none;">
+      <p style="color: #e53e3e; font-weight: 500; margin-top: 10px;">⏰ This offer has expired!</p>
+    </div>
+  {% else %}
+    <div class="timer-error">
+      <p style="color: #e53e3e; font-weight: 500; margin-top: 10px;">⚠️ Please set an end date in the block settings (format: YYYY-MM-DD or YYYY-MM-DD HH:MM:SS)</p>
+    </div>
+  {% endif %}
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const timers = document.querySelectorAll('.countdown-timer');
+
+  timers.forEach(timerElement => {
+    const endDateStr = timerElement.getAttribute('data-end-date');
+    if (!endDateStr) return;
+
+    function parseEndDate(dateStr) {
+      let parsed = new Date(dateStr);
+      if (isNaN(parsed)) parsed = new Date(dateStr.replace(" ", "T"));
+      if (isNaN(parsed) && dateStr.match(/^\d{4}-\d{2}-\d{2}$/))
+        parsed = new Date(dateStr + "T23:59:59");
+      return parsed;
+    }
+
+    const endDate = parseEndDate(endDateStr);
+    if (isNaN(endDate)) return;
+
+    const interval = setInterval(updateTimer, 1000);
+    updateTimer();
+
+    function updateTimer() {
+      const now = new Date();
+      const distance = endDate - now;
+
+      if (distance < 0) {
+        clearInterval(interval);
+        const display = timerElement.querySelector('.timer-display');
+        const expired = timerElement.querySelector('.timer-expired-message');
+        if (display) display.style.display = 'none';
+        if (expired) expired.style.display = 'block';
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      timerElement.querySelector('.js-timer-days').textContent = days.toString().padStart(2, '0');
+      timerElement.querySelector('.js-timer-hours').textContent = hours.toString().padStart(2, '0');
+      timerElement.querySelector('.js-timer-minutes').textContent = minutes.toString().padStart(2, '0');
+      timerElement.querySelector('.js-timer-seconds').textContent = seconds.toString().padStart(2, '0');
+    }
+  });
+});
+</script>
+
+{% schema %}
+{
+  "name": "Countdown Timer",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "custom_heading",
+      "label": "Manual Heading",
+      "default": "Hurry! Sale ends soon!"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Timer Subheading",
+      "default": "⏳ Limited Time Offer"
+    },
+    {
+      "type": "text",
+      "id": "end_date",
+      "label": "End Date/Time",
+      "info": "Format: YYYY-MM-DD or YYYY-MM-DD HH:MM:SS",
+      "default": "2025-12-31 23:59:59"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#f6fafd"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#1a365d"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,9 @@
+{
+  "countdown-timer": {
+    "name": "Countdown Timer",
+    "settings": {
+      "title": "Timer Heading",
+      "end_date": "End Date (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)"
+    }
+  }
+}
