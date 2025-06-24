@@ -1,4 +1,5 @@
-<div class="countdown-timer"
+<div
+  class="countdown-timer {% if block.settings.announcement_type == 'Marquee' %}marquee{% endif %}"
   data-end-date="{{ block.settings.end_date }}"
   style="
     background: {{ block.settings.bg_color }};
@@ -9,114 +10,134 @@
     text-align: center;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    overflow: hidden;
   "
 >
-  {% if block.settings.custom_heading != blank %}
-    <h3 style="
-      font-size: 1.5em;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: {{ block.settings.text_color }};
-    ">
-      {{ block.settings.custom_heading }}
+  {% if block.settings.announcement_name != blank %}
+    <h3 style="font-size: 1.5em; font-weight: 700; margin-bottom: 10px;">
+      {{ block.settings.announcement_name }}
     </h3>
   {% endif %}
 
-  <h4 style="
-    color: {{ block.settings.text_color }};
-    font-size: 1.3em;
-    margin: 0 0 15px 0;
-    font-weight: 600;
-  ">
-    {{ block.settings.title }}
-  </h4>
+  {% case block.settings.announcement_type %}
+    {% when "Marquee" %}
+      <div class="marquee-wrapper" role="region" aria-label="Announcement marquee">
+        <div class="marquee-text" aria-live="polite" style="animation-duration: {{ block.settings.marquee_speed | default: 15 }}s;">
+          {% for i in (1..20) %}
+            {{ block.settings.title }}&nbsp;&nbsp;&nbsp;&nbsp;
+          {% endfor %}
+        </div>
+      </div>
 
-  {% if block.settings.end_date != blank %}
-    <div class="timer-display" style="
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin: 0 auto;
-      max-width: 500px;
-    ">
+    {% when "Carousel" %}
+      {% assign messages = block.settings.carousel_messages | newline_to_br | split: "<br />" %}
+      <div class="carousel-wrapper" style="overflow: hidden; max-width: 100%;">
+        <div class="carousel-track" style="display: flex; transition: transform 0.5s ease;">
+          {% for msg in messages %}
+            <div class="carousel-slide" style="min-width: 100%; flex-shrink: 0; text-align: center; font-size: 1.3em; font-weight: 600;">
+              {{ msg }}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    {% else %}
+      <h4 style="font-size: 1.3em; font-weight: 600; margin: 0 0 15px 0;">
+        {{ block.settings.title }}
+      </h4>
+  {% endcase %}
+
+  {% if block.settings.show_timer and block.settings.end_date != blank %}
+    <div class="timer-display" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin: 0 auto; max-width: 500px;">
       {% assign units = "Days,Hours,Minutes,Seconds" | split: "," %}
       {% for unit in units %}
         <div class="timer-block" style="display: flex; flex-direction: column; min-width: 70px;">
-          <span class="timer-block__num js-timer-{{ unit | downcase }}" style="
-            background: #ffffff;
-            border-radius: 4px;
-            color: {{ block.settings.text_color }};
-            font-size: 1.8em;
-            font-weight: 700;
-            padding: 8px 12px;
-            margin-bottom: 5px;
-            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
-          ">00</span>
-          <span class="timer-block__unit" style="
-            color: {{ block.settings.text_color }};
-            font-size: 0.85em;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          ">{{ unit }}</span>
+          <span class="timer-block__num js-timer-{{ unit | downcase }}" style="background: #ffffff; border-radius: 4px; font-size: 1.8em; font-weight: 700; padding: 8px 12px; margin-bottom: 5px; box-shadow: 0 2px 3px rgba(0,0,0,0.1);">00</span>
+          <span class="timer-block__unit" style="font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px;">{{ unit }}</span>
         </div>
       {% endfor %}
     </div>
     <div class="timer-expired-message" style="display: none;">
       <p style="color: #e53e3e; font-weight: 500; margin-top: 10px;">⏰ This offer has expired!</p>
     </div>
-  {% else %}
+  {% elsif block.settings.show_timer %}
     <div class="timer-error">
-      <p style="color: #e53e3e; font-weight: 500; margin-top: 10px;">⚠️ Please set an end date in the block settings (format: YYYY-MM-DD or YYYY-MM-DD HH:MM:SS)</p>
+      <p style="color: #e53e3e; font-weight: 500; margin-top: 10px;">⚠️ Please set a valid end date (format: YYYY-MM-DD or YYYY-MM-DD HH:MM:SS)</p>
+    </div>
+  {% endif %}
+
+  {% if block.settings.show_button and block.settings.button_label != blank and block.settings.button_url != blank %}
+    <div style="margin-top: 15px;">
+      <a href="{{ block.settings.button_url }}" class="announcement-btn" style="display: inline-block; background-color: {{ block.settings.text_color }}; color: {{ block.settings.bg_color }}; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600;">
+        {{ block.settings.button_label }}
+      </a>
     </div>
   {% endif %}
 </div>
 
+{% if block.settings.announcement_type == 'Marquee' %}
+<style>
+.marquee-wrapper {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.marquee-text {
+  display: inline-block;
+  padding-left: 100%;
+  animation: marquee-scroll {{ block.settings.marquee_speed | default: 15 }}s linear infinite;
+  font-size: 1.3em;
+  font-weight: 600;
+}
+@keyframes marquee-scroll {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-100%); }
+}
+</style>
+{% endif %}
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const timers = document.querySelectorAll('.countdown-timer');
-
-  timers.forEach(timerElement => {
-    const endDateStr = timerElement.getAttribute('data-end-date');
+  document.querySelectorAll('.countdown-timer').forEach(timer => {
+    const endDateStr = timer.getAttribute('data-end-date');
     if (!endDateStr) return;
 
-    function parseEndDate(dateStr) {
-      let parsed = new Date(dateStr);
-      if (isNaN(parsed)) parsed = new Date(dateStr.replace(" ", "T"));
-      if (isNaN(parsed) && dateStr.match(/^\d{4}-\d{2}-\d{2}$/))
-        parsed = new Date(dateStr + "T23:59:59");
-      return parsed;
-    }
-
-    const endDate = parseEndDate(endDateStr);
+    const endDate = new Date(endDateStr.replace(' ', 'T'));
     if (isNaN(endDate)) return;
 
-    const interval = setInterval(updateTimer, 1000);
-    updateTimer();
-
-    function updateTimer() {
+    function update() {
       const now = new Date();
-      const distance = endDate - now;
-
-      if (distance < 0) {
-        clearInterval(interval);
-        const display = timerElement.querySelector('.timer-display');
-        const expired = timerElement.querySelector('.timer-expired-message');
-        if (display) display.style.display = 'none';
-        if (expired) expired.style.display = 'block';
+      const diff = endDate - now;
+      if (diff <= 0) {
+        timer.querySelector('.timer-display')?.style.setProperty('display', 'none');
+        timer.querySelector('.timer-expired-message')?.style.setProperty('display', 'block');
         return;
       }
 
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
 
-      timerElement.querySelector('.js-timer-days').textContent = days.toString().padStart(2, '0');
-      timerElement.querySelector('.js-timer-hours').textContent = hours.toString().padStart(2, '0');
-      timerElement.querySelector('.js-timer-minutes').textContent = minutes.toString().padStart(2, '0');
-      timerElement.querySelector('.js-timer-seconds').textContent = seconds.toString().padStart(2, '0');
+      timer.querySelector('.js-timer-days').textContent = days.toString().padStart(2, '0');
+      timer.querySelector('.js-timer-hours').textContent = hours.toString().padStart(2, '0');
+      timer.querySelector('.js-timer-minutes').textContent = minutes.toString().padStart(2, '0');
+      timer.querySelector('.js-timer-seconds').textContent = seconds.toString().padStart(2, '0');
     }
+
+    update();
+    setInterval(update, 1000);
+  });
+
+  // Carousel autoplay
+  document.querySelectorAll('.carousel-wrapper').forEach(wrapper => {
+    const track = wrapper.querySelector('.carousel-track');
+    if (!track || track.children.length <= 1) return;
+    let index = 0;
+    setInterval(() => {
+      index = (index + 1) % track.children.length;
+      track.style.transform = `translateX(-${index * 100}%)`;
+    }, 3000);
   });
 });
 </script>
@@ -128,22 +149,55 @@ document.addEventListener("DOMContentLoaded", function () {
   "settings": [
     {
       "type": "text",
-      "id": "custom_heading",
-      "label": "Manual Heading",
-      "default": "Hurry! Sale ends soon!"
+      "id": "announcement_name",
+      "label": "Announcement Bar Name",
+      "default": "Flash Sale Alert!"
+    },
+    {
+      "type": "select",
+      "id": "announcement_type",
+      "label": "Announcement Type",
+      "options": [
+        { "value": "Simple", "label": "Simple" },
+        { "value": "Marquee", "label": "Marquee" },
+        { "value": "Carousel", "label": "Carousel" }
+      ],
+      "default": "Simple"
     },
     {
       "type": "text",
       "id": "title",
-      "label": "Timer Subheading",
-      "default": "⏳ Limited Time Offer"
+      "label": "Message (Simple / Marquee)",
+      "default": "🚨 SALE! 50% OFF ON ALL ITEMS"
+    },
+    {
+      "type": "textarea",
+      "id": "carousel_messages",
+      "label": "Carousel Messages (one per line)",
+      "default": "🚨 SALE! 50% OFF\n🔥 Limited Time Offer\n💥 Free Shipping Over ₹999"
+    },
+    {
+      "type": "range",
+      "id": "marquee_speed",
+      "label": "Marquee Speed (in seconds)",
+      "min": 5,
+      "max": 30,
+      "step": 1,
+      "default": 20,
+      "info": "Only used for Marquee announcement type"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_timer",
+      "label": "Show Countdown Timer",
+      "default": true
     },
     {
       "type": "text",
       "id": "end_date",
-      "label": "End Date/Time",
+      "label": "End Date & Time",
       "info": "Format: YYYY-MM-DD or YYYY-MM-DD HH:MM:SS",
-      "default": "2025-12-31 23:59:59"
+      "default": "2030-12-31 23:59:59"
     },
     {
       "type": "color",
@@ -156,6 +210,24 @@ document.addEventListener("DOMContentLoaded", function () {
       "id": "text_color",
       "label": "Text Color",
       "default": "#1a365d"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button",
+      "label": "Show Button",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button Label",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "button_url",
+      "label": "Button URL",
+      "default": "/"
     }
   ]
 }
