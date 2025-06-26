@@ -1,0 +1,30 @@
+.marquee-wrapper {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.marquee-track {
+  display: flex;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  animation: marquee-scroll var(--marquee-speed, 20s) linear infinite;
+}
+
+.marquee-content {
+  display: inline-block;
+  padding: 0 2.5rem;
+  white-space: nowrap;
+  font-size: 1.3em;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-wrapper:hover .marquee-track {
+  animation-play-state: paused;
+}
