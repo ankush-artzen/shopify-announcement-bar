@@ -1,6 +1,7 @@
 <div
   class="countdown-timer {% if block.settings.announcement_type == 'Marquee' %}marquee{% endif %}"
   data-end-date="{{ block.settings.end_date }}"
+  data-max-views="{{ block.settings.max_views }}"
   style="
     background: {{ block.settings.bg_color }};
     color: {{ block.settings.text_color }};
@@ -22,7 +23,7 @@
       {% assign marquee_messages = block.settings.carousel_messages | newline_to_br | split: "<br />" %}
       <div class="marquee-wrapper" role="region" aria-label="Announcement marquee">
         <div class="marquee-track" style="--marquee-speed: {{ block.settings.marquee_speed | default: 20 }}s;">
-          {% for i in (1..2) %}
+          {% for i in (1..3) %}
             {% for msg in marquee_messages %}
               <div class="marquee-content" style="color: {{ block.settings.text_color }};">{{ msg }}</div>
             {% endfor %}
@@ -76,32 +77,103 @@
   {% endif %}
 </div>
 
-<!-- External CSS & JS -->
 {{ 'countdown-timer.css' | asset_url | stylesheet_tag }}
-{{ 'countdown-timer.js' | asset_url | script_tag }}
+<script src="{{ 'countdown-timer.js' | asset_url }}" defer></script>
+
+
 
 {% schema %}
 {
   "name": "Countdown Timer",
   "target": "section",
   "settings": [
-    { "type": "text",     "id": "announcement_name", "label": "Announcement Bar Name", "default": "Flash Sale Alert!" },
-    { "type": "select",   "id": "announcement_type", "label": "Announcement Type",
+    {
+      "type": "text",
+      "id": "announcement_name",
+      "label": "Announcement Bar Name",
+      "default": "Flash Sale Alert!"
+    },
+    {
+      "type": "select",
+      "id": "announcement_type",
+      "label": "Announcement Type",
       "options": [
-        { "value": "Simple",   "label": "Simple" },
-        { "value": "Marquee",  "label": "Marquee" },
-        { "value": "Carousel", "label": "Carousel" } ],
-      "default": "Simple" },
-    { "type": "text",     "id": "title", "label": "Message (Simple Only)", "default": "🚨 SALE! 50% OFF ON ALL ITEMS" },
-    { "type": "textarea", "id": "carousel_messages", "label": "Marquee / Carousel Messages (one per line)", "default": "🚨 SALE! 50% OFF\n🔥 Limited Time Offer\n💥 Free Shipping Over ₹999" },
-    { "type": "range",    "id": "marquee_speed", "label": "Marquee Speed (in seconds)", "min": 5, "max": 30, "step": 1, "default": 20 },
-    { "type": "checkbox", "id": "show_timer", "label": "Show Countdown Timer", "default": true },
-    { "type": "text",     "id": "end_date", "label": "End Date & Time", "info": "Format: YYYY-MM-DD or YYYY-MM-DD HH:MM:SS", "default": "2030-12-31 23:59:59" },
-    { "type": "color",    "id": "bg_color", "label": "Background Color", "default": "#f6fafd" },
-    { "type": "color",    "id": "text_color", "label": "Text Color", "default": "#1a365d" },
-    { "type": "checkbox", "id": "show_button", "label": "Show Button", "default": false },
-    { "type": "text",     "id": "button_label", "label": "Button Label", "default": "Shop Now" },
-    { "type": "url",      "id": "button_url", "label": "Button URL", "default": "/" }
+        { "value": "Simple", "label": "Simple" },
+        { "value": "Marquee", "label": "Marquee" },
+        { "value": "Carousel", "label": "Carousel" }
+      ],
+      "default": "Simple"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Message (Simple Only)",
+      "default": "SALE! 50% OFF ON ALL ITEMS"
+    },
+    {
+      "type": "textarea",
+      "id": "carousel_messages",
+      "label": "Marquee / Carousel Messages (one per line)",
+      "default": " SALE! 50% OFF\n Limited Time Offer\n Free Shipping Over ₹999"
+    },
+    {
+      "type": "range",
+      "id": "marquee_speed",
+      "label": "Marquee Speed (in seconds)",
+      "min": 5,
+      "max": 30,
+      "step": 1,
+      "default": 20
+    },
+    {
+      "type": "checkbox",
+      "id": "show_timer",
+      "label": "Show Countdown Timer",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "end_date",
+      "label": "End Date & Time",
+      "default": "2030-12-31 23:59:59"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#f6fafd"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#1a365d"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button",
+      "label": "Show Button",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button Label",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "button_url",
+      "label": "Button URL",
+      "default": "/"
+    },
+    {
+      "type": "number",
+      "id": "max_views",
+      "label": "Max Views (Hide Banner After)",
+      "default": 100
+    }
   ]
 }
+
 {% endschema %}
