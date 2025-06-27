@@ -1,7 +1,8 @@
 <div
   class="countdown-timer {% if block.settings.announcement_type == 'Marquee' %}marquee{% endif %}"
-  data-end-date="{{ block.settings.end_date }}"
+  data-end-date="{{ block.settings.end_date | date: '%Y-%m-%dT%H:%M:%S%z' }}"
   data-max-views="{{ block.settings.max_views }}"
+  data-enable-view-limit="{{ block.settings.enable_view_limit }}"
   style="
     background: {{ block.settings.bg_color }};
     color: {{ block.settings.text_color }};
@@ -23,7 +24,7 @@
       {% assign marquee_messages = block.settings.carousel_messages | newline_to_br | split: "<br />" %}
       <div class="marquee-wrapper" role="region" aria-label="Announcement marquee">
         <div class="marquee-track" style="--marquee-speed: {{ block.settings.marquee_speed | default: 20 }}s;">
-          {% for i in (1..3) %}
+          {% for i in (1..20) %}
             {% for msg in marquee_messages %}
               <div class="marquee-content" style="color: {{ block.settings.text_color }};">{{ msg }}</div>
             {% endfor %}
@@ -69,18 +70,32 @@
   {% endif %}
 
   {% if block.settings.show_button and block.settings.button_label != blank and block.settings.button_url != blank %}
-    <div style="margin-top: 15px;">
-      <a href="{{ block.settings.button_url }}" class="announcement-btn" style="display: inline-block; background-color: {{ block.settings.text_color }}; color: {{ block.settings.bg_color }}; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600;">
+    {% capture btn_html %}
+      <a href="{{ block.settings.button_url }}" class="announcement-btn"
+         style="display:inline-block; background-color:{{ block.settings.text_color }};
+                color:{{ block.settings.bg_color }}; padding:10px 20px;
+                border-radius:6px; text-decoration:none; font-weight:600;">
         {{ block.settings.button_label }}
       </a>
-    </div>
+    {% endcapture %}
+
+    {% case block.settings.button_position %}
+  {% when "top" %}
+    <div style="margin-bottom:15px; margin-right:15px; text-align:center;">{{ btn_html }}</div>
+  {% when "bottom" %}
+    <div style="margin-top:30px; text-align:center;">{{ btn_html }}</div>
+  {% when "left" %}
+    <div style="float:left; margin-right:15px; margin-top:15px;">{{ btn_html }}</div>
+  {% when "right" %}
+    <div style="float:right; margin-left:15px; margin-top:15px;">{{ btn_html }}</div>
+{% endcase %}
+<div style="clear:both;"></div>
+
   {% endif %}
 </div>
 
 {{ 'countdown-timer.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'countdown-timer.js' | asset_url }}" defer></script>
-
-
 
 {% schema %}
 {
@@ -113,8 +128,8 @@
     {
       "type": "textarea",
       "id": "carousel_messages",
-      "label": "Marquee / Carousel Messages (one per line)",
-      "default": " SALE! 50% OFF\n Limited Time Offer\n Free Shipping Over ₹999"
+      "label": "Marquee / Carousel Messages (minimum 3, one per line)",
+      "default": "SALE! 50% OFF\nLimited Time Offer\nFree Shipping Over ₹999"
     },
     {
       "type": "range",
@@ -156,6 +171,18 @@
       "default": false
     },
     {
+      "type": "select",
+      "id": "button_position",
+      "label": "Button Position",
+      "options": [
+        { "value": "top", "label": "Top" },
+        { "value": "bottom", "label": "Bottom" },
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "bottom"
+    },
+    {
       "type": "text",
       "id": "button_label",
       "label": "Button Label",
@@ -168,6 +195,12 @@
       "default": "/"
     },
     {
+      "type": "checkbox",
+      "id": "enable_view_limit",
+      "label": "Enable Max View Limit",
+      "default": false
+    },
+    {
       "type": "number",
       "id": "max_views",
       "label": "Max Views (Hide Banner After)",
@@ -175,5 +208,4 @@
     }
   ]
 }
-
 {% endschema %}

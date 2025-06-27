@@ -3,7 +3,7 @@
 client_id = "8e80e8f79549c9b5f63321da68c7f33e"
 name = "TEST-APP"
 handle = "test-app-12210"
-application_url = "https://digital-packet-impose-dv.trycloudflare.com"
+application_url = "https://pdt-branches-fantasy-insert.trycloudflare.com"
 embedded = true
 
 [build]
@@ -21,9 +21,9 @@ scopes = "read_orders,write_orders,write_products"
 
 [auth]
 redirect_urls = [
-  "https://digital-packet-impose-dv.trycloudflare.com/auth/callback",
-  "https://digital-packet-impose-dv.trycloudflare.com/auth/shopify/callback",
-  "https://digital-packet-impose-dv.trycloudflare.com/api/auth/callback"
+  "https://pdt-branches-fantasy-insert.trycloudflare.com/auth/callback",
+  "https://pdt-branches-fantasy-insert.trycloudflare.com/auth/shopify/callback",
+  "https://pdt-branches-fantasy-insert.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
