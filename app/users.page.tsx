@@ -4,151 +4,134 @@ import { useEffect, useState } from "react";
 import {
   Page,
   Layout,
-  LegacyCard as Card,
+  Card,
   Text,
   Button,
-  InlineStack,
-  Divider,
-  MediaCard,
+  Banner,
+  Badge,
 } from "@shopify/polaris";
-import Link from "next/link";
-import { graphql } from "@/lib/gql";
 import { useAppBridge } from "@shopify/app-bridge-react";
-import { useGraphQL } from "./hooks/useGraphQL";
+import { ExternalMinor } from "@shopify/polaris-icons";
 
-interface Data {
-  name: string;
-  height: string;
-}
-
-const GET_SHOP = graphql(`
-  query getShop {
-    shop {
-      name
-    }
-  }
-`);
-
-export default function Home() {
-  const [isMounted, setIsMounted] = useState<boolean>(false);
-  const [editorurl, setEditorurl] = useState<string>("");
-
+export default function ExtensionPage() {
+  const [extensionUrl, setExtensionUrl] = useState("");
   const app = useAppBridge();
 
-  const {
-    data: graphqlData,
-    isLoading: graphqlLoading,
-    error: graphqlError,
-  } = useGraphQL(GET_SHOP);
-
   useEffect(() => {
-    if (!app) return;
-    setIsMounted(true);
-    const shop = app.config?.shop;
-    if (!shop) return;
-
-    const url = `https://${shop}/admin/themes/current/editor?context=app`;
-    setEditorurl(url);
+    if (app?.config?.shop) {
+      setExtensionUrl(`https://${app.config.shop}/admin/extensions`);
+    }
   }, [app]);
 
   return (
-    <Page title="Shopify App Dashboard">
-      <div className="bg-gradient-to-r from-green-200 via-blue-300 to-purple-300 p-4 rounded-xl shadow text-gray-800 text-center">
-        <h1 className="text-2xl font-semibold">Welcome to your Admin Panel</h1>
-        <p className="text-sm mt-1">Built with ❤️ using Shopify & Next.js</p>
+    <Page title="Extensions Dashboard">
+      <div
+        className="max-w-4xl mx-auto px-6 py-12 rounded-3xl shadow-2xl border border-gray-200 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage:
+            "url('https://livesquare.in/wp-content/uploads/2014/07/Top-10-best-Simple-Awesome-Background-Images-for-Your-Website-or-Blog3.jpg')",
+        }}
+      >
+        
+        <div className="bg-white bg-opacity-90 backdrop-blur-sm p-8 rounded-2xl">
+
+          
+          <h1 className="text-2xl font-bold text-center mb-12 text-indigo-800 tracking-tight leading-tight">
+            Welcome to My Extension Page
+          </h1>
+
+          <Layout>
+
+            {/* Info Banner */}
+            <Layout.Section>
+              <div className="mb-8">
+                <Banner title="Our Extensions" status="info">
+                  <p>
+                    Extensions from the Shopify App Store allow you to enhance your store's functionality with custom features 
+                  </p>
+                </Banner>
+              </div>
+            </Layout.Section>
+
+            {/* Features List */}
+            <Layout.Section>
+              <Card title="Available Features" sectioned>
+                <div className="space-y-4">
+                  <Text as="p" variant="bodyMd" className="text-gray-700">
+                    Announcement banner extension supports:
+                  </Text>
+
+                  <ul className="list-disc pl-6 space-y-2 text-gray-800 text-sm leading-relaxed">
+                    <li>
+                      <strong>Announcement Types:</strong>{" "}
+                      <Badge status="info">Simple</Badge>,{" "}
+                      <Badge status="attention">Marquee / Carousel</Badge>
+                    </li>
+                    <li>
+                      <strong>Message Control:</strong> Static or scrolling messages
+                    </li>
+                    <li>
+                      <strong>Countdown Timer:</strong> User can add a countdown timer
+                    </li>
+                    <li>
+                      <strong>Scrolling Speed:</strong> Adjustable marquee speed
+                    </li>
+                    <li>
+                      <strong>Styling:</strong> Custom background & text colors
+                      <div className="mt-2 flex space-x-4">
+                        <div className="w-10 h-6 rounded shadow-inner border bg-indigo-600" title="Sample BG"></div>
+                        <div className="w-10 h-6 rounded shadow-inner border bg-white text-black flex items-center justify-center text-xs font-semibold">
+                          Aa
+                        </div>
+                      </div>
+                    </li>
+                    <li>
+                      <strong>Call to Action Button:</strong> Custom label, URL & position
+                    </li>
+                    <li>
+                      <strong>View Limiting:</strong> Max views toggle with limit
+                    </li>
+                    <li>
+                      <strong>Live Date Control:</strong> Set end date & time
+                    </li>
+                  </ul>
+                </div>
+              </Card>
+            </Layout.Section>
+
+            {/* Quick Actions */}
+            <Layout.Section>
+              <div className="my-8">
+                <Card title="Extension Quick Actions" sectioned>
+                  <div className="space-y-3">
+                    <Text as="p" variant="bodySm" className="text-gray-600">
+                      Manage your extensions directly in the Shopify admin.
+                    </Text>
+
+                    <Text as="p" variant="bodyMd" className="font-medium">
+                      Access  extensionS from this dashboard:
+                    </Text>
+
+                    {extensionUrl ? (
+                      <Button
+                        primary
+                        icon={ExternalMinor}
+                        url={extensionUrl}
+                        target="_blank"
+                      >
+                       Click here to open Extensions
+                      </Button>
+                    ) : (
+                      <Button disabled>Loading extension URL...</Button>
+                    )}
+                  </div>
+                </Card>
+              </div>
+            </Layout.Section>
+
+          </Layout>
+        </div>
       </div>
-
-      {/* Media Card Welcome */}
-      <Layout.Section>
-        <MediaCard
-          title="Getting Started"
-          description="Discover how Shopify can power up your entrepreneurial journey."
-          primaryAction={{
-            content: "Learn More",
-            onAction: () => {
-              window.open("https://shopify.dev", "_blank");
-            },
-          }}
-          popoverActions={[{ content: "Dismiss", onAction: () => {} }]}
-        >
-          <img
-            alt="Business woman smiling"
-            width="100%"
-            height="100%"
-            style={{ objectFit: "cover", objectPosition: "center" }}
-            src="https://burst.shopifycdn.com/photos/one-arm-push-up.jpg?width=1200"
-          />
-        </MediaCard>
-      </Layout.Section>
-      <Layout.Section>
-        <Card title="📊 App Insights Overview" sectioned>
-          <div className="bg-gradient-to-r from-green-200 via-blue-300 to-purple-300 p-4 rounded-xl shadow text-gray-800">
-            <Text variant="bodyMd" as="p" className="mb-3">
-              Here’s a quick snapshot of your app activity.
-            </Text>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>
-                🚀 <strong>Shop:</strong>{" "}
-                {graphqlData?.shop?.name ? graphqlData.shop.name : "Loading..."}
-              </li>
-              <li>
-                📦 Version: <strong>v1.0.0</strong>
-              </li>
-            </ul>
-          </div>
-        </Card>
-      </Layout.Section>
-
-      <Layout.Section>
-        <MediaCard
-          title="Boost your product visibility"
-          description="Enable SEO tags, add beautiful images, and highlight special offers to increase conversions."
-          primaryAction={{
-            content: "Optimize Now",
-            onAction: () => router.push("/products"),
-          }}
-          popoverActions={[{ content: "Dismiss", onAction: () => {} }]}
-        >
-          <img
-            alt="Product promo image"
-            width="100%"
-            height="100%"
-            style={{ objectFit: "cover", objectPosition: "center" }}
-            src="https://burst.shopifycdn.com/photos/resting-on-basketball-court.jpg?width=500"
-          />
-        </MediaCard>
-      </Layout.Section>
-      <Layout.Section>
-        <Card title="Customize Your Theme Extension" sectioned>
-          <Text as="p" variant="bodyMd" className="mb-4">
-            Open your store’s Theme Editor directly to the section where your
-            extension is installed.
-          </Text>
-
-          {isMounted && editorurl ? (
-            <Link href={editorurl} target="_blank">
-              <Button>Open Theme Editor</Button>
-            </Link>
-          ) : (
-            <Button disabled>Loading...</Button>
-          )}
-        </Card>
-      </Layout.Section>
-
-      {/* Navigation Link */}
-      <Layout.Section>
-        <Card title="Navigation" sectioned>
-          <InlineStack gap="200" align="start">
-            <Text as="p">Explore another page using Next.js routing.</Text>
-            <Link
-              className="text-indigo-600 hover:underline font-medium"
-              href="/new"
-            >
-              Go to /new page →
-            </Link>
-          </InlineStack>
-        </Card>
-      </Layout.Section>
     </Page>
   );
 }

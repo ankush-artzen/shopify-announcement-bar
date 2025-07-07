@@ -1,33 +1,72 @@
 <div
-  class="countdown-timer {% if block.settings.announcement_type == 'Marquee' %}marquee{% endif %}"
-  data-end-date="{{ block.settings.end_date | date: '%Y-%m-%dT%H:%M:%S%z' }}"
+  class="countdown-timer btn-{{ block.settings.button_position }} countdown-{{ block.settings.announcement_type | downcase }}"
+  data-end-date="{{ block.settings.end_date | date: '%Y-%m-%dT%H:%M:%SZ' }}"
   data-max-views="{{ block.settings.max_views }}"
   data-enable-view-limit="{{ block.settings.enable_view_limit }}"
   style="
     background: {{ block.settings.bg_color }};
     color: {{ block.settings.text_color }};
-    padding: 5px;
-    text-align: center;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    padding: 10px;
   "
 >
-  {% if block.settings.announcement_name != blank %}
-    <h3 style="font-size: 1.5em; font-weight: 700; margin-bottom: 10px; color: {{ block.settings.text_color }};">
-      {{ block.settings.announcement_name }}
-    </h3>
-  {% endif %}
-
   {% case block.settings.announcement_type %}
+    {% when "Simple" %}
+      <h4 style="font-weight: 600; margin: 5px 0; color: {{ block.settings.text_color }};">
+        {{ block.settings.title }}
+      </h4>
+
+      {% if block.settings.enable_button_link and block.settings.button_url != blank %}
+        <div class="btn-wrapper">
+          {% if block.settings.show_button %}
+            <a href="{{ block.settings.button_url }}" class="countdown-link-btn"
+              style="background-color: {{ block.settings.text_color }}; color: {{ block.settings.bg_color }}; padding: 8px 16px; font-weight: bold; border-radius: 4px;">
+              {{ block.settings.button_label }}
+            </a>
+          {% else %}
+            <a href="{{ block.settings.button_url }}" style="text-decoration: underline; color: {{ block.settings.text_color }};">
+              {{ block.settings.button_label }}
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {% if block.settings.show_timer and block.settings.end_date != blank %}
+        <div class="timer-display" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 0 auto; max-width: 400px;">
+          {% assign units = "Days,Hours,Minutes,Seconds" | split: "," %}
+          {% for unit in units %}
+            <div class="timer-block" style="display: flex; flex-direction: column; min-width: 50px;">
+              <span class="timer-block__num js-timer-{{ unit | downcase }}"
+                style="background: #ffffff; border-radius: 4px; font-size: 1.2em; font-weight: 600; padding: 4px 6px; margin-bottom: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.08); color: #000000;">
+                00
+              </span>
+              <span class="timer-block__unit"
+                style="font-size: 0.7em; text-transform: uppercase; letter-spacing: 0.4px; color: {{ block.settings.text_color }};">
+                {{ unit }}
+              </span>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="timer-expired-message" style="display: none;">
+          <p style="color: #e53e3e; font-weight: 500; margin-top: 10px;">⏰ This offer has expired!</p>
+        </div>
+      {% elsif block.settings.show_timer %}
+        <div class="timer-error">
+          <p style="color: #e53e3e; font-weight: 500; margin-top: 10px;">⚠️ Please set a valid end date (format: YYYY-MM-DD or YYYY-MM-DD HH:MM:SS)</p>
+        </div>
+      {% endif %}
+
     {% when "Marquee" %}
       {% assign marquee_messages = block.settings.carousel_messages | newline_to_br | split: "<br />" %}
       <div class="marquee-wrapper" role="region" aria-label="Announcement marquee">
         <div class="marquee-track" style="--marquee-speed: {{ block.settings.marquee_speed | default: 20 }}s;">
-          {% for i in (1..20) %}
-            {% for msg in marquee_messages %}
-              <div class="marquee-content" style="color: {{ block.settings.text_color }};">{{ msg }}</div>
-            {% endfor %}
+          {% for i in (0..50) %}
+            {% assign msg_index = i | modulo: marquee_messages.size %}
+            <div class="marquee-content" style="color: {{ block.settings.text_color }};">
+              {{ marquee_messages[msg_index] | strip }}
+            </div>
           {% endfor %}
         </div>
       </div>
@@ -43,55 +82,7 @@
           {% endfor %}
         </div>
       </div>
-
-    {% else %}
-      <h4 style="font-size: 1.3em; font-weight: 600; margin: 0 0 15px 0; color: {{ block.settings.text_color }};">
-        {{ block.settings.title }}
-      </h4>
   {% endcase %}
-
-  {% if block.settings.show_timer and block.settings.end_date != blank %}
-    <div class="timer-display" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin: 0 auto; max-width: 500px;">
-      {% assign units = "Days,Hours,Minutes,Seconds" | split: "," %}
-      {% for unit in units %}
-        <div class="timer-block" style="display: flex; flex-direction: column; min-width: 70px;">
-          <span class="timer-block__num js-timer-{{ unit | downcase }}" style="background: #ffffff; border-radius: 4px; font-size: 1.8em; font-weight: 700; padding: 8px 12px; margin-bottom: 5px; box-shadow: 0 2px 3px rgba(0,0,0,0.1); color: #000000;">00</span>
-          <span class="timer-block__unit" style="font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; color: {{ block.settings.text_color }};">{{ unit }}</span>
-        </div>
-      {% endfor %}
-    </div>
-    <div class="timer-expired-message" style="display: none;">
-      <p style="color: #e53e3e; font-weight: 500; margin-top: 10px;">⏰ This offer has expired!</p>
-    </div>
-  {% elsif block.settings.show_timer %}
-    <div class="timer-error">
-      <p style="color: #e53e3e; font-weight: 500; margin-top: 10px;">⚠️ Please set a valid end date (format: YYYY-MM-DD or YYYY-MM-DD HH:MM:SS)</p>
-    </div>
-  {% endif %}
-
-  {% if block.settings.show_button and block.settings.button_label != blank and block.settings.button_url != blank %}
-    {% capture btn_html %}
-      <a href="{{ block.settings.button_url }}" class="announcement-btn"
-         style="display:inline-block; background-color:{{ block.settings.text_color }};
-                color:{{ block.settings.bg_color }}; padding:10px 20px;
-                border-radius:6px; text-decoration:none; font-weight:600;">
-        {{ block.settings.button_label }}
-      </a>
-    {% endcapture %}
-
-    {% case block.settings.button_position %}
-  {% when "top" %}
-    <div style="margin-bottom:15px; margin-right:15px; text-align:center;">{{ btn_html }}</div>
-  {% when "bottom" %}
-    <div style="margin-top:30px; text-align:center;">{{ btn_html }}</div>
-  {% when "left" %}
-    <div style="float:left; margin-right:15px; margin-top:15px;">{{ btn_html }}</div>
-  {% when "right" %}
-    <div style="float:right; margin-left:15px; margin-top:15px;">{{ btn_html }}</div>
-{% endcase %}
-<div style="clear:both;"></div>
-
-  {% endif %}
 </div>
 
 {{ 'countdown-timer.css' | asset_url | stylesheet_tag }}
@@ -102,110 +93,32 @@
   "name": "Countdown Timer",
   "target": "section",
   "settings": [
-    {
-      "type": "text",
-      "id": "announcement_name",
-      "label": "Announcement Bar Name",
-      "default": "Flash Sale Alert!"
-    },
-    {
-      "type": "select",
-      "id": "announcement_type",
-      "label": "Announcement Type",
-      "options": [
-        { "value": "Simple", "label": "Simple" },
-        { "value": "Marquee", "label": "Marquee" },
-        { "value": "Carousel", "label": "Carousel" }
-      ],
-      "default": "Simple"
-    },
-    {
-      "type": "text",
-      "id": "title",
-      "label": "Message (Simple Only)",
-      "default": "SALE! 50% OFF ON ALL ITEMS"
-    },
-    {
-      "type": "textarea",
-      "id": "carousel_messages",
-      "label": "Marquee / Carousel Messages (minimum 3, one per line)",
-      "default": "SALE! 50% OFF\nLimited Time Offer\nFree Shipping Over ₹999"
-    },
-    {
-      "type": "range",
-      "id": "marquee_speed",
-      "label": "Marquee Speed (in seconds)",
-      "min": 5,
-      "max": 30,
-      "step": 1,
-      "default": 20
-    },
-    {
-      "type": "checkbox",
-      "id": "show_timer",
-      "label": "Show Countdown Timer",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "end_date",
-      "label": "End Date & Time",
-      "default": "2030-12-31 23:59:59"
-    },
-    {
-      "type": "color",
-      "id": "bg_color",
-      "label": "Background Color",
-      "default": "#f6fafd"
-    },
-    {
-      "type": "color",
-      "id": "text_color",
-      "label": "Text Color",
-      "default": "#1a365d"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_button",
-      "label": "Show Button",
-      "default": false
-    },
-    {
-      "type": "select",
-      "id": "button_position",
-      "label": "Button Position",
-      "options": [
-        { "value": "top", "label": "Top" },
-        { "value": "bottom", "label": "Bottom" },
-        { "value": "left", "label": "Left" },
-        { "value": "right", "label": "Right" }
-      ],
-      "default": "bottom"
-    },
-    {
-      "type": "text",
-      "id": "button_label",
-      "label": "Button Label",
-      "default": "Shop Now"
-    },
-    {
-      "type": "url",
-      "id": "button_url",
-      "label": "Button URL",
-      "default": "/"
-    },
-    {
-      "type": "checkbox",
-      "id": "enable_view_limit",
-      "label": "Enable Max View Limit",
-      "default": false
-    },
-    {
-      "type": "number",
-      "id": "max_views",
-      "label": "Max Views (Hide Banner After)",
-      "default": 100
-    }
+    { "type": "select", "id": "announcement_type", "label": "Announcement Type", "options": [
+      { "value": "Simple", "label": "Simple" },
+      { "value": "Marquee", "label": "Marquee" },
+      { "value": "Carousel", "label": "Carousel" }
+    ], "default": "Simple" },
+    { "type": "text", "id": "title", "label": "Message (Simple Only)", "default": "SALE! 50% OFF ON ALL ITEMS" },
+    { "type": "textarea", "id": "carousel_messages", "label": "Marquee / Carousel Messages (one per line)", "default": "SALE! 50% OFF\nLimited Time Offer\nFree Shipping Over ₹999" },
+    { "type": "range", "id": "marquee_speed", "label": "Marquee Speed (in seconds)", "min": 5, "max": 60, "step": 1, "default": 20 },
+    { "type": "paragraph", "content": "Note: Countdown timer is only available in the Simple announcement type." },
+    { "type": "checkbox", "id": "show_timer", "label": "Show Countdown Timer (Simple Only)", "default": true },
+    { "type": "text", "id": "end_date", "label": "End Date & Time", "default": "2030-12-31 23:59:59" },
+    { "type": "color", "id": "bg_color", "label": "Background Color", "default": "#f6fafd" },
+    { "type": "color", "id": "text_color", "label": "Text Color", "default": "#1a365d" },
+    { "type": "checkbox", "id": "enable_button_link", "label": "Show Button", "default": false },
+    { "type": "checkbox", "id": "show_button", "label": "Enable styling Button", "default": false },
+    { "type": "paragraph", "content": "Note: Button work only in the 'Simple' type." },
+    { "type": "select", "id": "button_position", "label": "Button Position", "options": [
+      { "value": "top", "label": "Top" },
+      { "value": "bottom", "label": "Bottom" },
+      { "value": "left", "label": "Left" },
+      { "value": "right", "label": "Right" }
+    ], "default": "bottom" },
+    { "type": "text", "id": "button_label", "label": "Button Label", "default": "Shop Now" },
+    { "type": "url", "id": "button_url", "label": "Button or Link URL", "default": "/" },
+    { "type": "checkbox", "id": "enable_view_limit", "label": "Enable Max View Limit", "default": false },
+    { "type": "number", "id": "max_views", "label": "Max Views (Hide Banner After)", "default": 100 }
   ]
 }
 {% endschema %}
