@@ -12,8 +12,8 @@ generator client {
 }
 
 model Session {
-  id               String            @id @map("_id")
-  accessToken      String? 
+  id               String    @id @map("_id")
+  accessToken      String?
   expires          DateTime?
   isOnline         Boolean
   scope            String?
@@ -21,19 +21,34 @@ model Session {
   state            String
   apiKey           String
   onlineAccessInfo OnlineAccessInfo?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+ 
 }
 
+model Billing {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  shop          String                 
+  chargeId      String?
+  planName      String?
+  price         String?
+  billingOn     DateTime?
+  billingStatus String?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+
 model OnlineAccessInfo {
-  id                  String          @id @default(auto()) @map("_id") @db.ObjectId
-  session             Session?        @relation(fields: [sessionId], references: [id])
-  sessionId           String?         @unique
+  id                  String           @id @default(auto()) @map("_id") @db.ObjectId
+  session             Session?         @relation(fields: [sessionId], references: [id])
+  sessionId           String?          @unique
   expiresIn           Int
   associatedUserScope String
   associatedUser      AssociatedUser?
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
 }
 
 model AssociatedUser {
@@ -58,4 +73,32 @@ model StoreSetting {
   shop      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Announcement {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  status    String
+  settings  Json     
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+type Settings {
+  announcementType  String
+  title             String
+  messages          String[]
+  showTimer         Boolean
+  endDate           String
+  bgColor           String
+  textColor         String
+  showButton        Boolean
+  enableButtonLink  Boolean
+  buttonUrl         String
+  buttonLabel       String
+  buttonPosition    String
+  enableViewLimit   Boolean
+  maxViews          Int
+  enableViewCount   Boolean
+  marqueeSpeed      Int
 }

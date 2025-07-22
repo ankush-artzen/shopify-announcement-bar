@@ -1,9 +1,9 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "ee6168206fe0f99ba138522cecdaa717"
-name = "next-test-app"
-handle = "next-test-app-5"
-application_url = "https://drug-asia-decades-agent.trycloudflare.com"
+client_id = "7690da1ea23f3e5ba237d5b3356699ff"
+name = "payment-test"
+handle = "payment-test-76"
+application_url = "https://expires-detect-improvement-spreading.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,14 +17,14 @@ embedded_app_direct_api_access = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "write_products"
+scopes = "read_billing,read_products,write_billing,write_products"
 use_legacy_install_flow = false
 
 [auth]
 redirect_urls = [
-  "https://drug-asia-decades-agent.trycloudflare.com/auth/callback",
-  "https://drug-asia-decades-agent.trycloudflare.com/auth/shopify/callback",
-  "https://drug-asia-decades-agent.trycloudflare.com/api/auth/callback"
+  "https://expires-detect-improvement-spreading.trycloudflare.com/auth/callback",
+  "https://expires-detect-improvement-spreading.trycloudflare.com/auth/shopify/callback",
+  "https://expires-detect-improvement-spreading.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

@@ -1,8 +1,8 @@
 <div
   class="countdown-timer btn-{{ block.settings.button_position }} countdown-{{ block.settings.announcement_type | downcase }}"
-  data-end-date="{{ block.settings.end_date | date: '%Y-%m-%dT%H:%M:%SZ' }}"
+data-end-date="{{ block.settings.end_date | date: '%Y-%m-%dT%H:%M:%S' }}"
   data-max-views="{{ block.settings.max_views }}"
-  data-enable-view-limit="{{ block.settings.enable_view_limit }}"
+   data-enable-view-limit="{{ block.settings.enable_view_limit }}"
   style="
     background: {{ block.settings.bg_color }};
     color: {{ block.settings.text_color }};
@@ -12,6 +12,7 @@
     padding: 10px;
   "
 >
+
   {% case block.settings.announcement_type %}
     {% when "Simple" %}
       <h4 style="font-weight: 600; margin: 5px 0; color: {{ block.settings.text_color }};">
@@ -93,32 +94,118 @@
   "name": "Countdown Timer",
   "target": "section",
   "settings": [
-    { "type": "select", "id": "announcement_type", "label": "Announcement Type", "options": [
-      { "value": "Simple", "label": "Simple" },
-      { "value": "Marquee", "label": "Marquee" },
-      { "value": "Carousel", "label": "Carousel" }
-    ], "default": "Simple" },
-    { "type": "text", "id": "title", "label": "Message (Simple Only)", "default": "SALE! 50% OFF ON ALL ITEMS" },
-    { "type": "textarea", "id": "carousel_messages", "label": "Marquee / Carousel Messages (one per line)", "default": "SALE! 50% OFF\nLimited Time Offer\nFree Shipping Over ₹999" },
-    { "type": "range", "id": "marquee_speed", "label": "Marquee Speed (in seconds)", "min": 5, "max": 60, "step": 1, "default": 20 },
-    { "type": "paragraph", "content": "Note: Countdown timer is only available in the Simple announcement type." },
-    { "type": "checkbox", "id": "show_timer", "label": "Show Countdown Timer (Simple Only)", "default": true },
-    { "type": "text", "id": "end_date", "label": "End Date & Time", "default": "2030-12-31 23:59:59" },
-    { "type": "color", "id": "bg_color", "label": "Background Color", "default": "#f6fafd" },
-    { "type": "color", "id": "text_color", "label": "Text Color", "default": "#1a365d" },
-    { "type": "checkbox", "id": "enable_button_link", "label": "Show Button", "default": false },
-    { "type": "checkbox", "id": "show_button", "label": "Enable styling Button", "default": false },
-    { "type": "paragraph", "content": "Note: Button work only in the 'Simple' type." },
-    { "type": "select", "id": "button_position", "label": "Button Position", "options": [
-      { "value": "top", "label": "Top" },
-      { "value": "bottom", "label": "Bottom" },
-      { "value": "left", "label": "Left" },
-      { "value": "right", "label": "Right" }
-    ], "default": "bottom" },
-    { "type": "text", "id": "button_label", "label": "Button Label", "default": "Shop Now" },
-    { "type": "url", "id": "button_url", "label": "Button or Link URL", "default": "/" },
-    { "type": "checkbox", "id": "enable_view_limit", "label": "Enable Max View Limit", "default": false },
-    { "type": "number", "id": "max_views", "label": "Max Views (Hide Banner After)", "default": 100 }
+    {
+      "type": "select",
+      "id": "announcement_type",
+      "label": "Announcement Type",
+      "options": [
+        { "value": "Simple", "label": "Simple" },
+        { "value": "Marquee", "label": "Marquee" },
+        { "value": "Carousel", "label": "Carousel" }
+      ],
+      "default": "Simple"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Message (Simple Only)",
+      "default": "SALE! 50% OFF ON ALL ITEMS"
+    },
+    {
+      "type": "textarea",
+      "id": "carousel_messages",
+      "label": "Marquee / Carousel Messages (one per line)",
+      "default": "SALE! 50% OFF\nLimited Time Offer\nFree Shipping Over ₹999"
+    },
+    {
+      "type": "range",
+      "id": "marquee_speed",
+      "label": "Marquee Speed (in seconds)",
+      "min": 5,
+      "max": 60,
+      "step": 1,
+      "default": 20
+    },
+    {
+      "type": "paragraph",
+      "content": "Note: Countdown timer is only available in the Simple announcement type."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_timer",
+      "label": "Show Countdown Timer (Simple Only)",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "end_date",
+      "label": "End Date & Time",
+      "default": "2030-12-31 23:59:59"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#f6fafd"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#1a365d"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_button_link",
+      "label": "Show Button",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button",
+      "label": "Enable styling Button",
+      "default": false
+    },
+    {
+      "type": "paragraph",
+      "content": "Note: Button work only in the 'Simple' type."
+    },
+    {
+      "type": "select",
+      "id": "button_position",
+      "label": "Button Position",
+      "options": [
+        { "value": "top", "label": "Top" },
+        { "value": "bottom", "label": "Bottom" },
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "bottom"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button Label",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "button_url",
+      "label": "Button or Link URL",
+      "default": "/"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_view_limit",
+      "label": "Enable Max View Limit",
+      "default": false
+    },
+    {
+      "type": "number",
+      "id": "max_views",
+      "label": "Max Views (Hide Banner After)",
+      "default": 100
+    }
   ]
 }
 {% endschema %}

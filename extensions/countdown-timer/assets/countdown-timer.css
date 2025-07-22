@@ -1,3 +1,12 @@
+.hide-banner-content {
+  visibility: hidden;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden;
+  opacity: 0;
+}
+
 /* === Marquee Wrapper & Animation === */
 .countdown-marquee-wrapper {
   width: 100%;

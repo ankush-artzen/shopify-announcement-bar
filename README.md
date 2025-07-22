@@ -1,184 +1,122 @@
-# 🛍️ Shopify App Template – Next.js App Router
+# 🕒 Countdown Timer - Shopify Theme App Extension
 
-This template is built for creating high-performance Shopify Embedded Apps using the Next.js App Router and TypeScript. It supports flexible database integration and provides all the necessary tooling for fast local development, smooth deployment, and Shopify ecosystem compatibility.
+## 📖 Overview
 
-## ✨ Features
+This **Countdown Timer** is a fully customizable Shopify Theme App Extension that allows merchants to:
 
-- **Next.js**: Using the latest app router and server components.
-- **Prisma (Optional)**: For managing database connections and migrations.
-- **Tanstack Query**: For interacting with the Shopify GraphQL API.
-- **App Bridge v4**: For authenticating API requests in the frontend.
-- **Shopify API library**: For managing OAuth on the serverless backend.
-- **Polaris React**: For building high quality, consistent experiences for
-  Shopify merchants.
-- **Tailwind CSS**: For fast, flexible styling and design.
-- **Docker (Optional)**: For setting up the database for local
-  development.
-- **Graphql-Codegen**: For generating types for graphql queries and mutations.
+* Display a banner with a **countdown timer**
+* Choose from multiple announcement types: `Simple`, `Marquee`, and `Carousel`
+* Show buttons with customizable positions
+* Set view limits using `localStorage`
+* Control behavior via the Shopify **Theme Editor**
 
-### Installing the template
+It’s responsive, accessible, and integrates seamlessly into any Shopify storefront.
 
-This template can be installed using your preferred package manager:
+---
 
-Using pnpm (recommended):
+## 📂 File Structure
 
-```shell
-git clone https://github.com/navjot-artzen/next-template-prisma.git
-cd next-template-prisma
-pnpm install
+```
+├── assets
+│   ├── countdown-timer.css
+│   └── countdown-timer.js
+├── sections
+│   └── countdown-timer.liquid
 ```
 
-This will clone the template and install the required dependencies.
+---
 
-## Next.js and Shopify Embedded Apps
+## 🚀 Installation & Usage
 
-The goal of this template is to provide a quick and easy way to spin up a
-Shopify Embedded App that uses the Next.js app router platform.
+### 1. Add Section to Theme
 
-The template uses a couple features of app bridge v4 to make your life easier,
-like authentication and session management.
+Place `countdown-timer.liquid` inside your app’s `/sections` folder.
 
-### Providers
+### 2. Reference Assets
 
-- in `layout.tsx` we setup some providers that are necessary for the app to run.
-  - **ApolloProvider**: (Optional) Sets up the Apollo context for running
-    Graphql queries and mutations. This runs through the `/api/graphql` Next.js
-    route and is handled by the Shopify API library.
-  - **SessionProvider**: (Optional) This ensures that the user always has an
-    active session and that the app is installed correctly. It basically
-    redirects the user to authenticate when it needs to.
+Ensure `countdown-timer.css` and `countdown-timer.js` are uploaded to the `/assets` folder and included:
 
-### App Bridge
-
-We use direct api mode and the new install flow so app installs are handled
-automatically.
-
-```toml
-[access.admin]
-direct_api_mode = "offline"
-embedded_app_direct_api_access = true
-
-[access_scopes]
-# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = ""
-use_legacy_install_flow = false
+```liquid
+{{ 'countdown-timer.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'countdown-timer.js' | asset_url }}" defer></script>
 ```
 
-### Token exchange
+### 3. Add Section via Theme Editor
 
-The app template uses token exchange by default. The user gets the ID Token from
-the initial page load and sends it to the server where it is stored. This
-happens using a server action.
+Use the Shopify theme editor to add the **Countdown Timer** section where needed.
 
-Also, all server actions should have the session token sent along with them, the
-server can then verify and exchange the token if needed.
+---
 
-### Environment Variables
+## ⚙️ Configuration Options
 
-There are a couple environment variables you need to set up in order for the app
-to run. Create a file called `.env` in the root directory (or the root of your
-Next.js app) and add the following lines;
+| Setting              | Type     | Description                                            |
+| -------------------- | -------- | ------------------------------------------------------ |
+| `announcement_type`  | Select   | Choose the banner type: Simple, Marquee, Carousel      |
+| `title`              | Text     | Banner heading (Simple only)                           |
+| `carousel_messages`  | TextArea | Enter multiple messages (newline separated)            |
+| `marquee_speed`      | Range    | Control marquee scroll speed (in seconds)              |
+| `show_timer`         | Checkbox | Toggle the countdown timer (Simple only)               |
+| `end_date`           | Text     | Countdown target date/time (e.g., 2030-12-31 23:59:59) |
+| `bg_color`           | Color    | Background color for the banner                        |
+| `text_color`         | Color    | Text color                                             |
+| `enable_button_link` | Checkbox | Toggle button visibility                               |
+| `show_button`        | Checkbox | Choose between styled button or basic link             |
+| `button_position`    | Select   | Position the button (top, bottom, left, right)         |
+| `button_label`       | Text     | Label for the button/link                              |
+| `button_url`         | URL      | Destination link for the button                        |
+| `enable_view_limit`  | Checkbox | Limit banner views per visitor                         |
+| `max_views`          | Number   | Max number of views before hiding the banner           |
 
-```bash
-DATABASE_URL= # database connection string - for connecting to prisma
-```
+---
 
-The first two variables are automatically populated by the Shopify CLI.
+##  Features & Logic
 
-## Tech Stack
+### ⏳ Countdown Timer
 
-This template combines a number of third party open-source tools:
+* Automatically updates every second
+* Supports expiration message when time runs out
+* Works only in `Simple` mode
 
-- [Next.js](https://nextjs.org/) builds the [React](https://reactjs.org/)
-  frontend.
+###  View Limit
 
-The following Shopify tools complement these third-party tools to ease app
-development:
+* Uses `localStorage` to store view count
+* Resets if configuration changes
+* Applies per-browser/session
 
-- [Shopify API library](https://github.com/Shopify/shopify-api-js?tab=readme-ov-file)
-  manages OAuth on the serverless backend. This lets users install the app and
-  grant scope permissions.
-- [App Bridge React](https://shopify.dev/apps/tools/app-bridge/getting-started/using-react)
-  adds authentication to API requests in the frontend and renders components
-  outside of the App’s iFrame.
-- [Apollo](https://www.apollographql.com/) for interacting with the Shopify
-  GraphQL API (Optional).
-- [Prisma](https://www.prisma.io/) for managing database connections and
-  migrations. This is optional, but gives you a nice ORM to work with. The
-  template is database agnostic, so you can use any database you want.
+### 🧾 Carousel & Marquee
 
-## Getting started
+* Carousel: auto-rotates slides every 3s
+* Marquee: infinitely scrolling text (pauses on hover)
 
-### Local Development
+### 🔁 Auto Initialization
 
-[The Shopify CLI](https://shopify.dev/apps/tools/cli) connects to an app in your
-Partners dashboard. It provides environment variables, runs commands in
-parallel, and updates application URLs for easier development.
+* Works with `DOMContentLoaded` and `shopify:section:load`
 
-You can develop locally using your preferred package manager.
+---
 
-Using pnpm:
+## 📱 Responsive Design
 
-```shell
-pnpm run dev
-```
+Optimized for all devices:
 
-#### Docker for local development
+* Mobile-friendly styles
+* Button positions adapt on small screens
+* Large screen enhancements for better UX
 
-You can also get up and running with Docker. This will setup and initialize the
-postgres database for you.
+---
 
-```shell
-docker-compose up
-pnpm run migrate
-```
+## 🛑 Notes
 
-#### Graphql-Codegen
+* Timer **requires a valid `end_date`** (e.g., `YYYY-MM-DD HH:MM:SS`)
+* Changing section settings resets view counts
 
-If you run the following command, it will generate the types for the graphql
-queries and mutations.
+---
 
-```shell
-pnpm run graphql-codegen
-```
 
-This sets up your types when using Apollo client and gives your intellisense in
-your IDE.
 
-## 🚢 Deployment (Vercel Recommended)
+## 🙋 Support
 
-You can deploy this app to a hosting service of your choice. Here is the basic
-setup for deploying to Vercel:
+For issues or enhancements, contact the developer or open an issue in the app repo.
 
-- Create you Shopify App in the Shopify Partners Dashboard
-- Create your project on Vercel and add the environment variables from your
-  Shopify App
-  - `SHOPIFY_API_KEY`
-  - `SHOPIFY_API_SECRET`
-  - `SCOPES`
-  - `HOST`
-  - Any database connection strings
-- Setup your Shopify App to have the same `/api/auth/callback` and `/api/auth`
-  routes as your Vercel deployment (with your hostname)
+---
 
-Vercel should be setup to build using the default Next.js build settings.
-
-You should also be using a managed Shopify deployment. This will handle scope
-changes on your app.
-
-```shell
-pnpm run deploy
-```
-
-### Application Storage
-
-This template uses Prisma to store and manage sessions. For more information on
-how to set up Prisma, see the
-[Prisma documentation](https://www.prisma.io/docs/getting-started/setup-prisma/start-from-scratch).
-
-## 📚 Developer Resources
-
-- [Shopify App Dev Docs](https://shopify.dev/apps/getting-started)
-- [App authentication](https://shopify.dev/apps/auth)
-- [Shopify CLI](https://shopify.dev/apps/tools/cli)
-- [Shopify API Library documentation](https://github.com/Shopify/shopify-api-node/tree/main/docs)
+Happy Selling! 🚀

@@ -94,7 +94,7 @@ importers:
         specifier: ^5.7.3
         version: 5.8.3
 
-  extensions/banner-extension:
+  extensions/admin-ui:
     dependencies:
       '@shopify/ui-extensions':
         specifier: 2025.4.x

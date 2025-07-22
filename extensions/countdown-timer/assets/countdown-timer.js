@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", () => initAll(document));
 document.addEventListener("shopify:section:load", (e) => initAll(e.target));
 
@@ -7,55 +6,33 @@ function initAll(root) {
   root.querySelectorAll(".carousel-wrapper").forEach(initCarousel);
 }
 
-function initTimer(timer) {
+async function initTimer(timer) {
   if (timer.__int) clearInterval(timer.__int);
 
   const blockId = timer.closest('[id^="shopify-section"]')?.id || "global";
-  const viewKey = `banner_view_count_${blockId}`;
-  const versionKey = `${viewKey}_version`;
-  const sessionKey = `${viewKey}_viewed_this_load`;
+  const bannerId = timer.dataset.bannerId || blockId;
+  const sessionKey = `banner_viewed_${bannerId}_this_session`;
   const inEditor = window.Shopify && Shopify.designMode;
   const enableLimit = timer.dataset.enableViewLimit === "true";
 
   if (!inEditor && localStorage.getItem(sessionKey)) {
-    console.log(`[${blockId}] Skipping — already viewed this session`);
+    console.log(`[${bannerId}] Skipping — already viewed this session`);
     return;
   }
+
   if (!inEditor) {
     localStorage.setItem(sessionKey, "1");
-    console.log(`[${blockId}] Marked as viewed for this session`);
+    console.log(`[${bannerId}] Marked as viewed this session`);
   }
 
-  const bannerConfig = JSON.stringify({
-    name: timer.querySelector("h3")?.textContent || "",
-    endDate: timer.dataset.endDate || "",
-    maxViews: timer.dataset.maxViews || "",
-    enableViewLimit: enableLimit,
-  });
-
-  const currentVersion = btoa(unescape(encodeURIComponent(bannerConfig)));
-  const storedVersion = localStorage.getItem(versionKey);
-
-  if (!inEditor && storedVersion !== currentVersion) {
-    console.log(`[${blockId}] Config changed — resetting view count`);
-    localStorage.setItem(viewKey, "0");
-    localStorage.setItem(versionKey, currentVersion);
-  }
-
-  const maxViews = parseInt(timer.dataset.maxViews || "100", 10);
-  let views = parseInt(localStorage.getItem(viewKey) || "0", 10);
-
+  // 📡 Call API to track views
   if (!inEditor && enableLimit) {
-    if (views >= maxViews) {
-      console.warn(`[${blockId}] Max views (${maxViews}) reached. Banner hidden.`);
-      timer.remove();
+    const hidden = await trackViewWithAPI(bannerId);
+    if (hidden) {
+      timer.classList.add("hide-banner-content");
+      console.warn(`[${bannerId}] Max views reached. Banner hidden.`);
       return;
     }
-    views++;
-    localStorage.setItem(viewKey, views);
-    console.log(`[${blockId}] View counted: ${views}/${maxViews}`);
-  } else {
-    console.log(`[${blockId}] View limit not enabled — skipping max view logic`);
   }
 
   const out = timer.querySelector(".timer-display");
@@ -64,7 +41,7 @@ function initTimer(timer) {
 
   const end = new Date(endStr.replace(" ", "T"));
   if (isNaN(end)) {
-    console.warn(`[${blockId}] Invalid date format: "${endStr}"`);
+    console.warn(`[${bannerId}] Invalid date format: "${endStr}"`);
     return;
   }
 
@@ -74,7 +51,7 @@ function initTimer(timer) {
       out.style.display = "none";
       timer.querySelector(".timer-expired-message")?.style.setProperty("display", "block");
       clearInterval(timer.__int);
-      console.log(`[${blockId}] Countdown expired.`);
+      console.log(`[${bannerId}] Countdown expired.`);
       return;
     }
     const d = Math.floor(diff / 864e5);
@@ -89,31 +66,50 @@ function initTimer(timer) {
 
   tick();
   timer.__int = setInterval(tick, 1000);
-  console.log(`[${blockId}] Countdown started. End time: ${end.toISOString()}`);
+  console.log(`[${bannerId}] Countdown started. Ends at ${end.toISOString()}`);
 }
 
 function initCarousel(wrapper) {
   if (wrapper.__int) clearInterval(wrapper.__int);
   const track = wrapper.querySelector(".carousel-track");
   if (!track || track.children.length <= 1) return;
+
   let i = 0;
   const total = track.children.length;
   const go = (n) => (track.style.transform = `translateX(-${n * 100}%)`);
   const next = () => { i = (i + 1) % total; go(i); };
   const start = () => { wrapper.__int = setInterval(next, 3000); };
   const stop  = () => { clearInterval(wrapper.__int); };
+
   wrapper.addEventListener("mouseenter", stop);
   wrapper.addEventListener("mouseleave", () => { stop(); start(); });
+
   go(0);
   start();
 }
 
+// 🔁 Clear session keys on page unload
 window.addEventListener("beforeunload", () =>
   Object.keys(localStorage)
-    .filter((k) => k.endsWith("_viewed_this_load"))
+    .filter((k) => k.includes("_this_session"))
     .forEach((k) => {
       localStorage.removeItem(k);
-      console.log(`Cleared session view key: ${k}`);
+      console.log(`Cleared session key: ${k}`);
     })
 );
 
+// 🌐 API Call to Track Views
+async function trackViewWithAPI(bannerId) {
+  try {
+    const res = await fetch("/api/banner-view", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bannerId }),
+    });
+    const data = await res.json();
+    return data?.hideBanner;
+  } catch (err) {
+    console.error("Failed to track banner view:", err);
+    return false;
+  }
+}
