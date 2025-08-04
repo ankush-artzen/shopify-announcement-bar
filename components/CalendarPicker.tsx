@@ -46,7 +46,7 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
 
       {settings.showTimer && (
         <>
-          <Box paddingBlockEnd="2">
+          <Box paddingBlockEnd="200">
             <Text variant="bodyMd" fontWeight="medium" as="p">
               End Date:
             </Text>
@@ -89,7 +89,7 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
                 borderRadius: "4px",
               }}
             />
-            <Button onClick={handleDateSelect} primary>
+            <Button onClick={handleDateSelect} variant="primary">
               Apply
             </Button>
           </div>

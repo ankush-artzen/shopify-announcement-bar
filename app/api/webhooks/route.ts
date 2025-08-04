@@ -1,7 +1,8 @@
+import { NextRequest } from "next/server"; 
 import shopify from "@/lib/shopify/initialize-context";
 import { headers } from "next/headers";
 
-export async function POST(req) {
+export async function POST(req: NextRequest) { 
   const topic = headers().get("x-shopify-topic");
 
   const rawBody = await req.text();

@@ -16,6 +16,8 @@ import {
   Tooltip,
 } from "@shopify/polaris";
 import { useRouter } from "next/navigation";
+import { useAppBridge } from "@shopify/app-bridge-react";
+
 import {
   PlayIcon,
   DuplicateIcon,
@@ -23,6 +25,7 @@ import {
   DeleteIcon,
   PauseCircleIcon,
 } from "@shopify/polaris-icons";
+
 import SaveConfirmationModal from "../../components/SaveConfirmationModal";
 import "@shopify/polaris/build/esm/styles.css";
 
@@ -37,7 +40,9 @@ type Announcement = {
 
 export default function CustomBanner() {
   const router = useRouter();
+  const app = useAppBridge();
 
+  const [shop, setShop] = useState<string>("");
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -50,30 +55,64 @@ export default function CustomBanner() {
   const [toastError, setToastError] = useState<boolean>(false);
 
   const dismissToast = () => setToastActive(false);
-
   const showToast = (msg: string, isError = false) => {
     setToastContent(msg);
     setToastError(isError);
     setToastActive(true);
   };
 
+  const getToneFromStatus = (
+    status: string,
+  ): "success" | "warning" | "attention" => {
+    switch (status.toLowerCase()) {
+      case "active":
+        return "success";
+      case "paused":
+        return "warning";
+      default:
+        return "attention";
+    }
+  };
+
+  // ✅ Set shop from App Bridge config
   useEffect(() => {
-    async function fetchAnnouncements() {
+    const shopFromConfig = app?.config?.shop;
+    if (shopFromConfig) {
+      setShop(shopFromConfig);
+    } else {
+      console.warn("⚠️ No shop found in App Bridge config.");
+    }
+  }, [app]);
+
+  // ✅ Fetch announcements only after shop is available
+  useEffect(() => {
+    async function init() {
+      if (!shop) return;
+
       try {
-        const res = await fetch("/api/getannouncements");
+        const tokenRes = await fetch(`/api/token?shop=${shop}`);
+        const tokenData = await tokenRes.json();
+
+        if (!tokenData?.hasAccessToken) {
+          showToast("No access token found for this shop", true);
+          return;
+        }
+
+        const res = await fetch(`/api/getannouncements?shop=${shop}`);
         const data: Announcement[] = await res.json();
         setAnnouncements(data);
-      } catch (error) {
-        console.error("Failed to fetch announcements:", error);
-        showToast("Failed to fetch announcements", true);
+      } catch (err) {
+        console.error("❌ Initialization failed", err);
+        showToast("Failed to initialize", true);
       } finally {
         setIsLoading(false);
       }
     }
 
-    fetchAnnouncements();
-  }, []);
+    init();
+  }, [shop]);
 
+  // ✅ Handle delete confirmation
   const handleDelete = async () => {
     if (!deleteId) return;
     setIsDeleting(true);
@@ -114,12 +153,17 @@ export default function CustomBanner() {
         title="Announcements"
         primaryAction={{
           content: "New Announcement",
+
           onAction: () => router.push("/custombar/add"),
         }}
       >
         <Layout>
           <Layout.Section>
-            <Card title="Your Announcements" sectioned>
+            <Card>
+              <Text as="h6" variant="bodyLg" fontWeight="bold">
+                Your Announcements
+              </Text>
+
               {isLoading ? (
                 <div style={{ textAlign: "center", padding: "20px" }}>
                   <Spinner
@@ -135,6 +179,8 @@ export default function CustomBanner() {
                       plural: "announcements",
                     }}
                     items={announcements}
+                    totalItemsCount={announcements.length}
+                    selectable={false}
                     renderItem={(item: Announcement) => {
                       const { id, name, status } = item;
 
@@ -142,6 +188,7 @@ export default function CustomBanner() {
                         <ResourceItem
                           id={id}
                           accessibilityLabel={`View details for ${name}`}
+                          onClick={() => {}}
                         >
                           <SaveConfirmationModal
                             open={showDeleteModal}
@@ -155,7 +202,7 @@ export default function CustomBanner() {
                             confirmText="Delete"
                             cancelText="Cancel"
                             loading={isDeleting}
-                            destructive
+                            // variant = "destructive"
                           />
                           <div
                             style={{
@@ -167,12 +214,37 @@ export default function CustomBanner() {
                             <div
                               style={{
                                 display: "flex",
-                                gap: "12px",
-                                alignItems: "center",
+                                flexDirection: "column",
+                                gap: "4px",
                               }}
                             >
-                              <Text>{name}</Text>
+                              <Text as="span" fontWeight="bold">
+                                {name}
+                              </Text>
+
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "8px",
+                                }}
+                              >
+                                <Text as="span" tone="subdued" variant="bodySm">
+                                  ID: <code>{id}</code>
+                                </Text>
+
+                                <Button
+                                  size="slim"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(id);
+                                    showToast("Banner ID copied to clipboard!");
+                                  }}
+                                >
+                                  Copy ID
+                                </Button>
+                              </div>
                             </div>
+
                             <div
                               style={{
                                 display: "flex",
@@ -180,16 +252,7 @@ export default function CustomBanner() {
                                 alignItems: "center",
                               }}
                             >
-                              <Badge
-                                tone={status === "Active" ? "success" : "attention"}
-                                status={
-                                  status?.toLowerCase() === "paused"
-                                    ? "warning"
-                                    : status?.toLowerCase() === "active"
-                                    ? "success"
-                                    : "attention"
-                                }
-                              >
+                              <Badge tone={getToneFromStatus(status)}>
                                 {status
                                   ? status.charAt(0).toUpperCase() +
                                     status.slice(1)
@@ -197,31 +260,45 @@ export default function CustomBanner() {
                               </Badge>
 
                               <div style={{ display: "flex", gap: "8px" }}>
-                                <Tooltip content={status === "Paused" ? "Activate" : "Pause"}>
+                                <Tooltip
+                                  content={
+                                    status === "Paused" ? "Activate" : "Pause"
+                                  }
+                                >
                                   <Button
-                                    plain
-                                    icon={status === "Paused" ? PlayIcon : PauseCircleIcon}
+                                    variant="plain"
+                                    icon={
+                                      status === "Paused"
+                                        ? PlayIcon
+                                        : PauseCircleIcon
+                                    }
                                     onClick={async () => {
                                       const newStatus =
-                                        status === "Paused" ? "Active" : "Paused";
+                                        status === "Paused"
+                                          ? "Active"
+                                          : "Paused";
 
                                       try {
-                                        await fetch(`/api/announcements/${id}`, {
-                                          method: "PATCH",
-                                          headers: {
-                                            "Content-Type": "application/json",
+                                        await fetch(
+                                          `/api/announcements/${id}`,
+                                          {
+                                            method: "PATCH",
+                                            headers: {
+                                              "Content-Type":
+                                                "application/json",
+                                            },
+                                            body: JSON.stringify({
+                                              status: newStatus,
+                                            }),
                                           },
-                                          body: JSON.stringify({
-                                            status: newStatus,
-                                          }),
-                                        });
+                                        );
 
                                         setAnnouncements((prev) =>
                                           prev.map((a) =>
                                             a.id === id
                                               ? { ...a, status: newStatus }
-                                              : a
-                                          )
+                                              : a,
+                                          ),
                                         );
 
                                         showToast(
@@ -229,11 +306,16 @@ export default function CustomBanner() {
                                             newStatus === "Active"
                                               ? "activated"
                                               : "paused"
-                                          }`
+                                          }`,
                                         );
                                       } catch (err) {
-                                        console.error("Failed to update status");
-                                        showToast("Failed to update status", true);
+                                        console.error(
+                                          "Failed to update status",
+                                        );
+                                        showToast(
+                                          "Failed to update status",
+                                          true,
+                                        );
                                       }
                                     }}
                                   />
@@ -242,12 +324,12 @@ export default function CustomBanner() {
                                 <Tooltip content="Duplicate">
                                   <Button
                                     icon={DuplicateIcon}
-                                    plain
+                                    variant="plain"
                                     onClick={async () => {
                                       try {
                                         const res = await fetch(
                                           `/api/announcements/${id}/duplicate`,
-                                          { method: "POST" }
+                                          { method: "POST" },
                                         );
                                         const data = await res.json();
                                         if (data.success) {
@@ -257,11 +339,17 @@ export default function CustomBanner() {
                                           ]);
                                           showToast("Announcement duplicated");
                                         } else {
-                                          showToast("Failed to duplicate", true);
+                                          showToast(
+                                            "Failed to duplicate",
+                                            true,
+                                          );
                                         }
                                       } catch (err) {
                                         console.error("Duplicate failed", err);
-                                        showToast("Duplicate request failed", true);
+                                        showToast(
+                                          "Duplicate request failed",
+                                          true,
+                                        );
                                       }
                                     }}
                                   />
@@ -270,7 +358,7 @@ export default function CustomBanner() {
                                 <Tooltip content="Edit">
                                   <Button
                                     icon={EditIcon}
-                                    plain
+                                    variant="plain"
                                     onClick={() =>
                                       router.push(`/custombar/edit?id=${id}`)
                                     }
@@ -280,7 +368,7 @@ export default function CustomBanner() {
                                 <Tooltip content="Delete">
                                   <Button
                                     icon={DeleteIcon}
-                                    plain
+                                    variant="plain"
                                     onClick={() => {
                                       setDeleteId(id);
                                       setShowDeleteModal(true);
@@ -294,8 +382,9 @@ export default function CustomBanner() {
                       );
                     }}
                   />
+
                   {announcements.length === 0 && (
-                    <Text alignment="center">
+                    <Text as="p" alignment="center">
                       No announcements yet. Click “New announcement”.
                     </Text>
                   )}

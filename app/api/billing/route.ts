@@ -3,9 +3,9 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { shopifyApi } from "@shopify/shopify-api";
 import { findSessionsByShop } from "@/lib/db/session-storage";
+import { ApiVersion } from "@shopify/shopify-api";
 
-const SHOPIFY_API_VERSION = "2025-07";
-
+const SHOPIFY_API_VERSION = ApiVersion.July23;
 const billingConfig = {
   Premium: {
     amount: 499.0,
@@ -33,69 +33,77 @@ export async function POST(req: NextRequest) {
     const plan = body?.plan;
     const bodyShop = body?.shop;
     const { searchParams } = new URL(req.url);
-    console.log("incoming request body:", body);
-    const host = searchParams.get("host"); // ✅ Extract 'host' from URL
 
+    const rawHost = searchParams.get("host");
+    const queryShop = searchParams.get("shop");
+
+    const encodedHost = rawHost || Buffer.from(`${bodyShop || queryShop}/admin`, "utf8").toString("base64").replace(/=/g, "");
+    console.log("🔍 Parsed input:", { bodyShop, queryShop, rawHost, encodedHost, plan });
 
     const validPlans = Object.keys(billingConfig) as BillingPlan[];
     if (!plan || !validPlans.includes(plan as BillingPlan)) {
+      console.warn("❌ Invalid or missing plan", { received: plan, validPlans });
       return NextResponse.json(
         {
           error: `Invalid or missing plan. Valid plans: ${validPlans.join(", ")}`,
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     const cookieStore = cookies();
     const cookieShop = cookieStore.get("shop")?.value;
     const tokenFromCookie = cookieStore.get("accessToken")?.value;
-    const queryShop = new URL(req.url).searchParams.get("shop");
 
     let shop = bodyShop || cookieShop || queryShop;
     let token = tokenFromCookie;
 
-    console.log("🔍 Resolved shop:", shop);
-    console.log("🔐 Access token:", token ? "✅ Present" : "❌ Missing");
+    console.log("🍪 Cookies:", { cookieShop, tokenFromCookie });
 
     if (!shop) {
+      console.warn("❌ Missing shop in body, cookie, or query param");
       return NextResponse.json(
         { error: "Missing 'shop' in body, cookie, or query param" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     if (!token) {
       console.log("🧠 Attempting session fallback...");
       const sessions = await findSessionsByShop(shop);
-      token = sessions?.[0]?.accessToken || null;
+      console.log("🗃️ Sessions from DB:", sessions);
+      token = sessions?.[0]?.accessToken ;
       console.log("🔄 Token from DB:", token ? "✅ Found" : "❌ Not found");
     }
 
     if (!token) {
+      console.error("🚫 No token found. Aborting.");
       return NextResponse.json(
         {
-          error:
-            "Missing access token. Ensure the app has been installed correctly.",
+          error: "Missing access token. Ensure the app has been installed correctly.",
         },
-        { status: 401 },
+        { status: 401 }
       );
     }
 
     const config = billingConfig[plan as BillingPlan];
-    const returnUrl = `https://${shop}/admin/apps/${process.env.SHOPIFY_API_KEY}/billing?shop=${shop}&host=${host}`;
+    console.log("📦 Billing config:", config);
+
+    const returnUrl = `${process.env.HOST}/api/auth/callback?shop=${shop}`;
     console.log("🔁 Return URL:", returnUrl);
 
     const mutation = `
     mutation AppSubscriptionCreate(
       $name: String!,
       $lineItems: [AppSubscriptionLineItemInput!]!,
-      $returnUrl: URL!
+      $returnUrl: URL!,
+      $trialDays: Int
     ) {
       appSubscriptionCreate(
         name: $name,
         returnUrl: $returnUrl,
         test: ${process.env.NODE_ENV !== "production"},
+        trialDays: $trialDays,
         lineItems: $lineItems
       ) {
         confirmationUrl
@@ -109,10 +117,12 @@ export async function POST(req: NextRequest) {
       }
     }
   `;
+  
 
   const variables = {
     name: `${plan} Plan`,
     returnUrl,
+    trialDays: 1, 
     lineItems: [
       {
         plan: {
@@ -128,11 +138,9 @@ export async function POST(req: NextRequest) {
     ],
   };
   
+    console.log("📤 Sending GraphQL request:", { apiUrl: `https://${shop}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`, variables });
 
-    const apiUrl = `https://${shop}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`;
-    console.log("📡 Sending GraphQL request to:", apiUrl);
-
-    const response = await fetch(apiUrl, {
+    const response = await fetch(`https://${shop}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -144,38 +152,42 @@ export async function POST(req: NextRequest) {
     const rawResponse = await response.text();
 
     if (!rawResponse.trim().startsWith("{")) {
+      console.error("🛑 Shopify response not JSON:", rawResponse);
       return NextResponse.json(
         { error: "Shopify response is not JSON", response: rawResponse },
-        { status: 502 },
+        { status: 502 }
       );
     }
 
     const result = JSON.parse(rawResponse);
-    const { confirmationUrl, userErrors } =
-      result?.data?.appSubscriptionCreate || {};
+    const { confirmationUrl, userErrors } = result?.data?.appSubscriptionCreate || {};
+    console.log("📬 Shopify response parsed:", result);
 
     if (result.errors) {
+      console.error("❌ Shopify GraphQL errors:", result.errors);
       return NextResponse.json(
         { error: "GraphQL error", details: result.errors },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     if (userErrors?.length) {
+      console.warn("⚠️ Shopify user errors:", userErrors);
       return NextResponse.json(
         { error: "Billing failed", userErrors },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     if (!confirmationUrl) {
+      console.error("❌ Missing confirmation URL");
       return NextResponse.json(
         { error: "Missing confirmation URL from Shopify" },
-        { status: 500 },
+        { status: 500 }
       );
     }
 
-    console.log("✅ Confirmation URL received:", confirmationUrl);
+    console.log("✅ Billing setup success — confirmation URL:", confirmationUrl);
     return NextResponse.json({ confirmationUrl });
   } catch (err: any) {
     console.error("❌ Billing error:", err.message, "\nStack:", err.stack);
@@ -185,7 +197,7 @@ export async function POST(req: NextRequest) {
         message: err.message,
         ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

@@ -1,45 +1,12 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useAppBridge } from "@shopify/app-bridge-react";
 import SettingsPanel from "../../../components/updatesetting";
 import "../styles.css";
 import { Spinner, Frame, Toast, Page } from "@shopify/polaris";
-import { ArrowLeftIcon } from "@shopify/polaris-icons";
-
-// ------------------------
-// Types
-// ------------------------
-
-interface Settings {
-  announcementType: "Simple" | "Marquee" | "Carousel" | string;
-  title: string;
-  messages: string[];
-  showTimer: boolean;
-  endDate: string;
-  bgColor: string;
-  textColor: string;
-  showButton: boolean;
-  enableButtonLink: boolean;
-  buttonUrl: string;
-  buttonLabel: string;
-  buttonPosition: string;
-  enableViewLimit: boolean;
-  maxViews: number;
-  marqueeSpeed: number;
-  enableViewCount: boolean;
-}
-
-interface TimerVals {
-  days: string;
-  hours: string;
-  minutes: string;
-  seconds: string;
-}
-
-// ------------------------
-// Defaults
-// ------------------------
+import type { Settings } from "@/app/types/settings";
 
 const defaultSettings: Settings = {
   announcementType: "Simple",
@@ -53,40 +20,49 @@ const defaultSettings: Settings = {
   enableButtonLink: true,
   buttonUrl: "https://",
   buttonLabel: "Shop Now",
-  buttonPosition: "bottom",
+  buttonPosition: "top",
   enableViewLimit: true,
   maxViews: 5,
   marqueeSpeed: 20,
   enableViewCount: true,
 };
 
-// ------------------------
-// Component
-// ------------------------
-
 const EditPage: React.FC = () => {
+  const router = useRouter();
+  const app = useAppBridge();
+
+  const [id, setId] = useState<string | null>(null);
+  const [shop, setShop] = useState<string>("");
+  const [settings, setSettings] = useState<Settings | null>(null);
+  const [expired, setExpired] = useState<boolean>(false);
+  const [saving, setSaving] = useState<boolean>(false);
   const [toast, setToast] = useState<{ active: boolean; content: string }>({
     active: false,
     content: "",
   });
 
-  const [settings, setSettings] = useState<Settings | null>(null);
-  const [expired, setExpired] = useState<boolean>(false);
-  const [saving, setSaving] = useState<boolean>(false);
-  const [timerVals, setTimerVals] = useState<TimerVals>({
+  const [timerVals, setTimerVals] = useState({
     days: "00",
     hours: "00",
     minutes: "00",
     seconds: "00",
   });
 
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
-  const router = useRouter();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const carouselRef = useRef<HTMLDivElement | null>(null);
 
-  // Fetch data on mount
+  // ✅ Get `shop` from App Bridge and `id` from query
+  useEffect(() => {
+    const shopFromConfig = app?.config?.shop;
+    if (shopFromConfig) setShop(shopFromConfig);
+
+    const params = new URLSearchParams(window.location.search);
+    const idFromURL = params.get("id");
+    if (idFromURL) setId(idFromURL);
+    else console.warn("⚠️ No ID found in query params");
+  }, [app]);
+
+  // ✅ Fetch settings for the given ID
   useEffect(() => {
     if (!id) return;
 
@@ -94,9 +70,14 @@ const EditPage: React.FC = () => {
       try {
         const res = await fetch(`/api/announcements/${id}`);
         const data = await res.json();
-        setSettings(data?.settings || defaultSettings);
+        if (data?.success && data?.data?.settings) {
+          setSettings(data.data.settings);
+        } else {
+          console.warn("⚠️ Falling back to default settings");
+          setSettings(defaultSettings);
+        }
       } catch (err) {
-        console.error("❌ Failed to fetch announcement:", err);
+        console.error("❌ Fetch error:", err);
         setSettings(defaultSettings);
       }
     };
@@ -125,9 +106,18 @@ const EditPage: React.FC = () => {
 
       setExpired(false);
       setTimerVals({
-        days: String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, "0"),
-        hours: String(Math.floor((distance / (1000 * 60 * 60)) % 24)).padStart(2, "0"),
-        minutes: String(Math.floor((distance / (1000 * 60)) % 60)).padStart(2, "0"),
+        days: String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(
+          2,
+          "0",
+        ),
+        hours: String(Math.floor((distance / (1000 * 60 * 60)) % 24)).padStart(
+          2,
+          "0",
+        ),
+        minutes: String(Math.floor((distance / (1000 * 60)) % 60)).padStart(
+          2,
+          "0",
+        ),
         seconds: String(Math.floor((distance / 1000) % 60)).padStart(2, "0"),
       });
     };
@@ -166,32 +156,60 @@ const EditPage: React.FC = () => {
   const handleSave = async () => {
     if (!id) return;
     setSaving(true);
-
+  
     try {
       const res = await fetch(`/api/announcements/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "Paused", settings }),
+        body: JSON.stringify({
+          status: "Paused",
+          settings,
+        }),
       });
-
+  
       const data = await res.json();
-
-      if (data.success) {
-        setToast({ active: true, content: "Announcement saved successfully!" });
-        setTimeout(() => router.push("/custombar"), 2000);
+  
+      if (!res.ok) {
+        console.error("Failed to update:", data.error);
+        setToast({
+          active: true,
+          content: data.error || "Update failed",
+        });
       } else {
-        setToast({ active: true, content: "Failed to save announcement." });
+        setToast({
+          active: true,
+          content: "Announcement updated successfully",
+        });
+  
+        setTimeout(() => {
+          router.push("/custombar");
+        }, 1000);
       }
-    } catch (err) {
-      setToast({ active: true, content: "Something went wrong!" });
+    } catch (error) {
+      console.error("Update error:", error);
+      setToast({
+        active: true,
+        content: "Something went wrong while saving",
+      });
     } finally {
       setSaving(false);
     }
   };
-
+  
   if (!settings) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "rgba(255, 255, 255, 0.6)",
+          zIndex: 50,
+        }}
+      >
+        {" "}
         <Spinner accessibilityLabel="Loading settings" size="large" />
       </div>
     );
@@ -226,11 +244,10 @@ const EditPage: React.FC = () => {
         title="Edit Announcement"
         backAction={{
           content: "Back",
-          icon: ArrowLeftIcon,
           onAction: () => router.back(),
         }}
       >
-        <div className="fixed top-0 left-1/2 transform -translate-x-1/2 w-1/2 z-50 px-4 py-2 border-b border-blue-200 text-sm text-blue-900 font-medium text-center">
+        <div className="fixed top-0 left-1/2 transform -translate-x-1/2 w-1/2 z-50 px-4 py-2 border-b border-blue-200 text-base text-blue-900 font-bold text-center ">
           You are viewing a live preview of your banner
         </div>
 
@@ -245,19 +262,7 @@ const EditPage: React.FC = () => {
               {showButton && (
                 <div className="btn-wrapper text-center mt-2">
                   {enableButtonLink ? (
-                    <a
-                      href={buttonUrl || "https://"}
-                      style={{
-                        backgroundColor: textColor,
-                        color: bgColor,
-                        border: `1px solid ${textColor}`,
-                        padding: "8px 16px",
-                        borderRadius: "6px",
-                        fontWeight: "500",
-                      }}
-                    >
-                      {buttonLabel}
-                    </a>
+                    <a href={buttonUrl || "https://"}>{buttonLabel}</a>
                   ) : (
                     <button
                       style={{
@@ -327,34 +332,29 @@ const EditPage: React.FC = () => {
         </div>
 
         {/* Settings & Save */}
-        <div className="fixed bottom-0 left-0 w-full h-[400px] bg-white z-30 overflow-y-auto shadow-2xl border-t px-4 py-6">
-          <div
-            className={`${
-              settings.showTimer
-                ? "fixed bottom-[-68px] left-0 w-full h-[400px] bg-white z-30 overflow-y-auto shadow-2xl border-t px-4 py-6"
-                : "max-w-screen-lg mx-auto"
-            }`}
-          >
-            <SettingsPanel
-              settings={settings}
-              setSettings={setSettings}
-              resetViews={resetViews}
-              onSave={() =>
-                setToast({
-                  active: true,
-                  content: "Settings updated locally!",
-                })
-              }
-            />
-            <div className="mt-4 text-right">
-              <button
-                onClick={handleSave}
-                className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
-                disabled={saving}
-              >
-                {saving ? "Saving..." : "Save Changes"}
-              </button>
-            </div>
+        <div className="fixed bottom-[-27px] left-0 w-full h-[400px] bg-white z-30 overflow-y-auto shadow-2xl border-t px-4 py-6">
+          <SettingsPanel
+            settings={settings}
+            setSettings={
+              setSettings as React.Dispatch<React.SetStateAction<Settings>>
+            }
+            resetViews={resetViews}
+            onSave={() =>
+              setToast({
+                active: true,
+                content: "Settings updated locally!",
+              })
+            }
+          />
+
+          <div className="mb-4 text-left">
+            <button
+              onClick={handleSave}
+              className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition flex flex-row items-end space-x-6 mt-6"
+              disabled={saving}
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </button>
           </div>
         </div>
       </Page>

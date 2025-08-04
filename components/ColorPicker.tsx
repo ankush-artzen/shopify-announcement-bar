@@ -1,10 +1,6 @@
 "use client";
 import React, { ChangeEvent } from "react";
-
-interface Settings {
-  bgColor: string;
-  textColor: string;
-}
+import type { Settings } from "@/app/types/settings";
 
 interface ColorPickerProps {
   settings: Settings;

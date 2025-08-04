@@ -68,59 +68,59 @@ export async function GET(req: NextRequest) {
 }
 
 // ─── POST: Cancel Subscription ─────────────────────────────────────────────
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { shop, subscriptionId } = body;
+// export async function POST(req: NextRequest) {
+//   const body = await req.json();
+//   const { shop, subscriptionId } = body;
 
-  if (!shop || !subscriptionId) {
-    return NextResponse.json({ error: "Missing shop or subscriptionId" }, { status: 400 });
-  }
+//   if (!shop || !subscriptionId) {
+//     return NextResponse.json({ error: "Missing shop or subscriptionId" }, { status: 400 });
+//   }
 
-  let token = cookies().get("accessToken")?.value;
+//   let token = cookies().get("accessToken")?.value;
 
-  if (!token) {
-    const sessions = await findSessionsByShop(shop);
-    token = sessions?.[0]?.accessToken;
-  }
+//   if (!token) {
+//     const sessions = await findSessionsByShop(shop);
+//     token = sessions?.[0]?.accessToken;
+//   }
 
-  if (!token) {
-    return NextResponse.json({ error: "Missing token" }, { status: 401 });
-  }
+//   if (!token) {
+//     return NextResponse.json({ error: "Missing token" }, { status: 401 });
+//   }
 
-  const mutation = `
-    mutation appSubscriptionCancel($id: ID!) {
-      appSubscriptionCancel(id: $id) {
-        appSubscription {
-          id
-          status
-        }
-        userErrors {
-          field
-          message
-        }
-      }
-    }
-  `;
+//   const mutation = `
+//     mutation appSubscriptionCancel($id: ID!) {
+//       appSubscriptionCancel(id: $id) {
+//         appSubscription {
+//           id
+//           status
+//         }
+//         userErrors {
+//           field
+//           message
+//         }
+//       }
+//     }
+//   `;
 
-  const response = await fetch(`https://${shop}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Shopify-Access-Token": token,
-    },
-    body: JSON.stringify({
-      query: mutation,
-      variables: { id: subscriptionId },
-    }),
-  });
+//   const response = await fetch(`https://${shop}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       "X-Shopify-Access-Token": token,
+//     },
+//     body: JSON.stringify({
+//       query: mutation,
+//       variables: { id: subscriptionId },
+//     }),
+//   });
 
-  const result = await response.json();
-  const cancelData = result?.data?.appSubscriptionCancel;
+//   const result = await response.json();
+//   const cancelData = result?.data?.appSubscriptionCancel;
 
-  if (cancelData?.userErrors?.length) {
-    return NextResponse.json({ error: "Cancel failed", userErrors: cancelData.userErrors }, { status: 400 });
-  }
+//   if (cancelData?.userErrors?.length) {
+//     return NextResponse.json({ error: "Cancel failed", userErrors: cancelData.userErrors }, { status: 400 });
+//   }
 
-  console.log("✅ Subscription cancelled:", cancelData?.appSubscription?.id);
-  return NextResponse.json({ success: true, status: cancelData.appSubscription?.status });
-}
+//   console.log("✅ Subscription cancelled:", cancelData?.appSubscription?.id);
+//   return NextResponse.json({ success: true, status: cancelData.appSubscription?.status });
+// }

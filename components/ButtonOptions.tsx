@@ -1,9 +1,10 @@
 "use client";
+
 import React from "react";
 import { Box, Checkbox, TextField, Select, Divider } from "@shopify/polaris";
 import { buttonPositionOptions } from "@/lib/constants";
 
-type ButtonPosition = "left" | "center" | "right"; // adjust if you have different options
+type ButtonPosition = "top" | "bottom" | "left" | "right";
 
 interface Settings {
   showButton: boolean;
@@ -34,7 +35,7 @@ const ButtonOptions: React.FC<ButtonOptionsProps> = ({
       />
 
       {settings.showButton && (
-        <Box paddingBlockStart="4">
+        <Box paddingBlockStart="400">
           <Checkbox
             label="Enable Button Link"
             checked={settings.enableButtonLink}
@@ -44,11 +45,15 @@ const ButtonOptions: React.FC<ButtonOptionsProps> = ({
             label="Button Label"
             value={settings.buttonLabel}
             onChange={handleChange("buttonLabel")}
+            autoComplete="off"
+
           />
           <TextField
             label="Button URL"
             value={settings.buttonUrl}
             onChange={handleChange("buttonUrl")}
+            autoComplete="off"
+
           />
           <Select
             label="Button Position"

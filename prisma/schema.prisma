@@ -28,13 +28,15 @@ model Session {
 
 model Billing {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  shop          String                 
-  chargeId      String?
+  shop          String               
+  chargeId      String?   
   planName      String?
   price         String?
   billingOn     DateTime?
   billingStatus String?
-
+  trialEndsOn   DateTime?
+  planExpiresOn DateTime?
+  subscriptionId String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -76,13 +78,28 @@ model StoreSetting {
 }
 
 model Announcement {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  status    String
-  settings  Json     
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @map("_id")
+  name       String
+  status     String
+  settings   Json
+  groupId    String?
+  shopId     String
+  views      Int      @default(0)
+  viewLimit  Int?
+  shop       Shop     @relation(fields: [shopId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([name, shopId])
 }
+
+model Shop {
+  id             String          @id @map("_id")
+  name           String          @unique
+  views          Int             @default(0) 
+  announcements  Announcement[]
+}
+
 
 type Settings {
   announcementType  String

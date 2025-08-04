@@ -11,6 +11,8 @@ import {
   BlockStack,
 } from "@shopify/polaris";
 import { useRouter } from "next/navigation";
+import { StarFilledIcon } from "@shopify/polaris-icons";
+
 
 
 export default function LandingPage() {
@@ -34,7 +36,7 @@ export default function LandingPage() {
                 Your all-in-one app for publishing powerful, on-brand store
                 banners
               </Text>
-              <Text as="p" tone="medium" alignment="center">
+              <Text as="p" variant="headingSm" alignment="center">
                 Create, manage, and schedule announcements that drive engagement
                 and increase conversions — all from a simple, intuitive
                 dashboard.
@@ -127,11 +129,11 @@ export default function LandingPage() {
         </Layout.Section>
 
         {/* Footer */}
-        <Layout.Section>
+        {/* <Layout.Section>
           <Banner title="Built for Shopify merchants" tone="info">
             <p>100% customizable · Works with all themes · Free to start</p>
           </Banner>
-        </Layout.Section>
+        </Layout.Section> */}
       </Layout>
     </Page>
   );

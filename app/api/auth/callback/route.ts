@@ -12,9 +12,9 @@ export async function GET(req: NextRequest) {
   console.log("🛍️ Shop:", shop);
   console.log("💳 Charge ID:", chargeId);
 
-  if (!shop || !chargeId) {
+  if (!shop || !chargeId || chargeId === "undefined" || chargeId === "null") {
     return NextResponse.json(
-      { error: "Missing 'shop' or 'charge_id'" },
+      { error: "Missing or invalid 'shop' or 'charge_id'" },
       { status: 400 },
     );
   }
@@ -28,16 +28,15 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Fetch charge details
-    const chargeRes = await fetch(
-      `https://${shop}/admin/api/2023-10/recurring_application_charges/${chargeId}.json`,
-      {
-        headers: {
-          "X-Shopify-Access-Token": accessToken,
-          "Content-Type": "application/json",
-        },
+    const API_VERSION = "2025-07";
+    const chargeUrl = `https://${shop}/admin/api/${API_VERSION}/recurring_application_charges/${chargeId}.json`;
+
+    const chargeRes = await fetch(chargeUrl, {
+      headers: {
+        "X-Shopify-Access-Token": accessToken,
+        "Content-Type": "application/json",
       },
-    );
+    });
 
     if (!chargeRes.ok) {
       const error = await chargeRes.text();
@@ -48,19 +47,27 @@ export async function GET(req: NextRequest) {
     }
 
     const { recurring_application_charge: charge } = await chargeRes.json();
+    console.log("🔎 Shopify Charge Response:", {
+      id: charge.id,
+      status: charge.status,
+      name: charge.name,
+      price: charge.price,
+      trial_days: charge.trial_days,
+      trial_ends_on: charge.trial_ends_on,
+      billing_on: charge.billing_on,
+    });
 
-    // Activate if accepted
+    // 🔐 Activate the charge if not already
     if (charge.status === "accepted") {
-      const activateRes = await fetch(
-        `https://${shop}/admin/api/2023-10/recurring_application_charges/${chargeId}/activate.json`,
-        {
-          method: "POST",
-          headers: {
-            "X-Shopify-Access-Token": accessToken,
-            "Content-Type": "application/json",
-          },
+      const activateUrl = `https://${shop}/admin/api/${API_VERSION}/recurring_application_charges/${chargeId}/activate.json`;
+
+      const activateRes = await fetch(activateUrl, {
+        method: "POST",
+        headers: {
+          "X-Shopify-Access-Token": accessToken,
+          "Content-Type": "application/json",
         },
-      );
+      });
 
       if (!activateRes.ok) {
         const error = await activateRes.text();
@@ -73,41 +80,75 @@ export async function GET(req: NextRequest) {
       console.log("✅ Charge activated successfully");
     }
 
-    // Save or update billing info
-    if (charge.status === "accepted" || charge.status === "active") {
-      await prisma.billing.upsert({
-        where: { shop },
-        update: {
-          chargeId: String(charge.id),
-          planName: charge.name,
-          price: charge.price,
-          billingOn: charge.billing_on
-            ? new Date(charge.billing_on)
-            : undefined,
-          billingStatus: charge.status,
-        },
-        create: {
+    if (["accepted", "active"].includes(charge.status)) {
+      // 🔁 Mark all old billing plans as replaced
+      await prisma.billing.updateMany({
+        where: {
           shop,
-          chargeId: String(charge.id),
-          planName: charge.name,
-          price: charge.price,
-          billingOn: charge.billing_on
-            ? new Date(charge.billing_on)
-            : undefined,
-          billingStatus: charge.status,
+          billingStatus: {
+            in: ["active", "pending", "scheduled_cancelled", "freezed"],
+          },
+        },
+        data: {
+          billingStatus: "replaced",
         },
       });
 
-      console.log("📦 Billing info stored for", shop);
+      // 📅 Extract key dates
+      // 📅 Determine actual billing start using created_at (not billing_on!)
+      const billingStartDate = new Date(charge.created_at || Date.now());
+      if (isNaN(billingStartDate.getTime())) {
+        throw new Error(
+          `Invalid created_at date from Shopify: ${charge.created_at}`,
+        );
+      }
+
+      const trialDays =
+        typeof charge.trial_days === "number" ? charge.trial_days : 0;
+
+      // 🧪 Trial ends X days after billing start
+      const trialEndsOn = new Date(
+        billingStartDate.getTime() + trialDays * 86400000,
+      );
+
+      // 📆 Plan expires 30 days after trial ends
+      const planExpiresOn = new Date(trialEndsOn.getTime() + 30 * 86400000);
+
+      const now = new Date();
+      const trialIsActive = trialDays > 0 && now < trialEndsOn;
+      const billingStatus = trialIsActive ? "pending" : "active";
+
+      console.log("📅 Today:", now.toISOString());
+      console.log("📅 Trial Ends On:", trialEndsOn.toISOString());
+      console.log("📆 Billing Starts On:", billingStartDate.toISOString());
+      console.log("📆 Plan Expires On:", planExpiresOn.toISOString());
+      console.log("💳 Billing Status:", billingStatus);
+
+      // 💾 Save to database
+      await prisma.billing.create({
+        data: {
+          shop,
+          chargeId: String(charge.id),
+          subscriptionId: String(charge.id),
+          planName: charge.name,
+          price: charge.price,
+          billingOn: billingStartDate,
+          billingStatus,
+          trialEndsOn,
+          planExpiresOn,
+        },
+      });
+
+      console.log("✅ Billing record saved to database for:", shop);
     }
 
-    // Redirect to embedded app
-    const host =
-      hostParam || Buffer.from(`${shop}/admin`, "utf-8").toString("base64");
+    // 🔁 Redirect merchant to app billing success screen
+    const encodedHost =
+      hostParam ||
+      Buffer.from(`${shop}/admin`, "utf8").toString("base64").replace(/=/g, "");
+    const redirectUrl = `https://${shop}/admin/apps/${process.env.SHOPIFY_API_KEY}/billing?shop=${shop}&host=${encodedHost}&plan_success=true`;
 
-    // const redirectUrl = `https://${shop}/admin/apps/${process.env.SHOPIFY_API_KEY}?shop=${shop}&host=${host}`;
-    const redirectUrl = `https://${shop}/admin/apps/${API_KEY}/billing?shop=${shop}&host=${host}`;
-
+    console.log("🔁 Redirecting to:", redirectUrl);
     return NextResponse.redirect(redirectUrl);
   } catch (error: any) {
     console.error("❌ Callback error:", error?.message || error);

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import ShortUniqueId from "short-unique-id";
+import { Prisma } from "@prisma/client";
 
 export async function POST(
   req: NextRequest,
@@ -17,41 +19,54 @@ export async function POST(
       );
     }
 
+    const uid = new ShortUniqueId({ length: 10 });
+    const newId = uid.rnd();
+
     let baseName = original.name;
     const copyIndex = baseName.indexOf(" (Copy");
     if (copyIndex !== -1) {
       baseName = baseName.slice(0, copyIndex);
     }
 
-    const existing = await prisma.announcement.findMany({
-      where: {
-        name: {
-          startsWith: baseName,
-        },
-      },
-      select: { name: true },
-    });
+    let count = 0;
 
-    let nextName = `${baseName} (Copy)`;
-    let count = 1;
+    while (true) {
+      const suffix = count === 0 ? " (Copy)" : ` (Copy ${count + 1})`;
+      const name = `${baseName}${suffix}`;
 
-    const existingNames = existing.map((a) => a.name);
-    while (existingNames.includes(nextName)) {
-      nextName = `${baseName} (Copy ${count})`;
-      count++;
+      try {
+        const duplicated = await prisma.announcement.create({
+          data: {
+            id: newId,
+            name,
+            status: "Paused",
+            settings: original.settings ?? {},
+            shopId: original.shopId,
+            groupId: original.groupId,
+          },
+        });
+
+        return NextResponse.json({ success: true, announcement: duplicated });
+      } catch (error: any) {
+        const isUniqueError =
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === "P2002" &&
+          error.meta?.target === "Announcement_name_shopId_key";
+
+        if (!isUniqueError) {
+          console.error("❌ Unexpected error:", error);
+          return NextResponse.json(
+            { success: false, error: error.message || "Something went wrong" },
+            { status: 500 }
+          );
+        }
+
+        // Duplicate name, retry with next
+        count++;
+      }
     }
-
-    const duplicated = await prisma.announcement.create({
-      data: {
-        name: nextName,
-        status: "Paused",
-        settings: original.settings ?? {}, // Use optional chaining and default empty
-      },
-    });
-
-    return NextResponse.json({ success: true, announcement: duplicated });
   } catch (error: any) {
-    console.error("❌ Duplicate error:", error);
+    console.error("❌ Critical error:", error);
     return NextResponse.json(
       { success: false, error: error.message || "Something went wrong" },
       { status: 500 }

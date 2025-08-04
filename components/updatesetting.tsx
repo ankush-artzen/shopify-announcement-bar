@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState } from "react";
 import {
   Card,
@@ -8,6 +9,7 @@ import {
   RangeSlider,
   Divider,
   FormLayout,
+  Text,
 } from "@shopify/polaris";
 
 import MessagesInput from "./MessagesInput";
@@ -16,28 +18,14 @@ import ButtonOptions from "./ButtonOptions";
 import CalendarPicker from "./CalendarPicker";
 
 import { announcementOptions } from "@/lib/constants";
-
-type AnnouncementType = "Simple" | "Marquee" | "Carousel"; // Adjust if needed
-
-interface Settings {
-  title: string;
-  announcementType: AnnouncementType;
-  messages: string[];
-  showTimer: boolean;
-  endDate: string;
-  bgColor: string;
-  textColor: string;
-  showButton: boolean;
-  enableButtonLink: boolean;
-  buttonLabel: string;
-  buttonUrl: string;
-  buttonPosition: "left" | "center" | "right"; // Adjust if more
-  marqueeSpeed: number;
-}
+import type { Settings} from "@/app/types/settings";
 
 interface SettingsPanelProps {
   settings: Settings;
   setSettings: React.Dispatch<React.SetStateAction<Settings>>;
+  bannerId?: string;
+  resetViews?: () => void;
+  onSave?: () => void;
 }
 
 const SettingsPanel: React.FC<SettingsPanelProps> = ({
@@ -78,12 +66,19 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   const announcementType = settings.announcementType;
 
   return (
-    <Card title="Countdown Banner Settings" sectioned>
-      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-800 font-medium">
+    <Card>
+      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-800 font-semibold">
         You can preview your applied settings in the live banner above.
       </div>
+
+      <div className="px-4 pb-2">
+        <Text as="h2" variant="bodyMd" fontWeight="bold">
+          Countdown Banner Settings
+        </Text>
+      </div>
+
       <FormLayout>
-        {/* Announcement Type Selector */}
+        {/* Type Selection */}
         <Select
           label="Announcement Type"
           options={announcementOptions}
@@ -96,9 +91,10 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
           label="Title"
           value={settings.title}
           onChange={handleChange("title")}
+          autoComplete="off"
         />
 
-        {/* Marquee / Carousel Messages */}
+        {/* Messages input for Marquee/Carousel */}
         {announcementType !== "Simple" && (
           <MessagesInput
             settings={settings}
@@ -108,7 +104,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
           />
         )}
 
-        {/* Countdown Timer Date Picker (Simple only) */}
+        {/* Calendar Picker for Simple */}
         {announcementType === "Simple" && (
           <CalendarPicker
             settings={settings}
@@ -123,17 +119,19 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
           />
         )}
 
-        {/* Color Customization */}
+        {/* Toggle Color Options */}
         <Checkbox
           label="Show Color Options"
           checked={showColors}
-          onChange={(value: boolean) => setShowColors(value)}
+          onChange={setShowColors}
         />
+
+        {/* Color Picker Section */}
         {showColors && (
           <ColorPicker settings={settings} setSettings={setSettings} />
         )}
 
-        {/* Button Settings (Simple only) */}
+        {/* Button Options */}
         {announcementType === "Simple" && (
           <ButtonOptions
             settings={settings}
@@ -142,7 +140,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
           />
         )}
 
-        {/* Marquee-specific settings */}
+        {/* Marquee Speed Slider */}
         {announcementType === "Marquee" && (
           <RangeSlider
             label="Marquee Speed (seconds)"
@@ -150,12 +148,13 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
             max={60}
             step={1}
             value={settings.marqueeSpeed}
-            onChange={handleChange("marqueeSpeed")}
+            onChange={(value) =>
+              handleChange("marqueeSpeed")(value as number)
+            }
             output
           />
         )}
 
-        {/* Carousel-specific settings could go here */}
         <Divider />
       </FormLayout>
     </Card>

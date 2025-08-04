@@ -1,9 +1,6 @@
 import React from "react";
 import { TextField, Button, Text, Tag } from "@shopify/polaris";
-
-interface Settings {
-  messages: string[];
-}
+import type { Settings } from "@/app/types/settings";
 
 interface MessagesInputProps {
   settings: Settings;
@@ -11,6 +8,9 @@ interface MessagesInputProps {
   newMessage: string;
   setNewMessage: React.Dispatch<React.SetStateAction<string>>;
 }
+
+// Your MessagesInput component logic here...
+
 
 const MessagesInput: React.FC<MessagesInputProps> = ({
   settings,
@@ -20,7 +20,9 @@ const MessagesInput: React.FC<MessagesInputProps> = ({
 }) => {
   return (
     <>
-      <Text variant="headingSm" as="h6">Announcement Messages</Text>
+      <Text variant="headingSm" as="h6">
+        Announcement Messages
+      </Text>
 
       <div
         style={{
@@ -33,7 +35,8 @@ const MessagesInput: React.FC<MessagesInputProps> = ({
         <TextField
           label="New Message"
           value={newMessage}
-          onChange={(value: string) => setNewMessage(value)} g
+          onChange={(value: string) => setNewMessage(value)}
+          autoComplete="off"
         />
         <Button
           onClick={() => {
@@ -45,7 +48,7 @@ const MessagesInput: React.FC<MessagesInputProps> = ({
               setNewMessage("");
             }
           }}
-          primary
+          variant="primary"
         >
           Add
         </Button>
@@ -63,7 +66,9 @@ const MessagesInput: React.FC<MessagesInputProps> = ({
           <Tag
             key={index}
             onRemove={() => {
-              const updatedMessages = settings.messages.filter((_, i) => i !== index);
+              const updatedMessages = settings.messages.filter(
+                (_, i) => i !== index,
+              );
               setSettings((prev) => ({ ...prev, messages: updatedMessages }));
             }}
           >

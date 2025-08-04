@@ -1,9 +1,9 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "7690da1ea23f3e5ba237d5b3356699ff"
-name = "payment-test"
-handle = "payment-test-76"
-application_url = "https://expires-detect-improvement-spreading.trycloudflare.com"
+client_id = "96b5ec3c0cdf81552a577ceab5710818"
+name = "Billing-test"
+handle = "billing-test-34"
+application_url = "https://arbor-called-sk-width.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,14 +17,14 @@ embedded_app_direct_api_access = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_billing,read_products,write_billing,write_products"
+scopes = "read_products"
 use_legacy_install_flow = false
 
 [auth]
 redirect_urls = [
-  "https://expires-detect-improvement-spreading.trycloudflare.com/auth/callback",
-  "https://expires-detect-improvement-spreading.trycloudflare.com/auth/shopify/callback",
-  "https://expires-detect-improvement-spreading.trycloudflare.com/api/auth/callback"
+  "https://arbor-called-sk-width.trycloudflare.com/auth/callback",
+  "https://arbor-called-sk-width.trycloudflare.com/auth/shopify/callback",
+  "https://arbor-called-sk-width.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
