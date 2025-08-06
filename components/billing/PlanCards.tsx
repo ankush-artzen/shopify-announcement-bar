@@ -164,7 +164,7 @@ export default function PlanCard({
           disabled={isLoading}
           loading={isLoading}
         >
-          Start Free with 7 Day Trial
+          Start Free with 1 Day Trial
         </Button>
       );
     }
