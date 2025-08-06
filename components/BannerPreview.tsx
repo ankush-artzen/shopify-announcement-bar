@@ -34,7 +34,7 @@ const BannerPreview: React.FC<BannerPreviewProps> = ({ settings, timerVals, expi
   const {
     announcementType,
     title,
-    messages,
+    messages =[],
     showTimer,
     bgColor,
     textColor,

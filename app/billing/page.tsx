@@ -238,7 +238,7 @@ export default function BillingPage() {
         }}
         loading={isLoading}
         title="Cancel Subscription?"
-        message="Are you sure you want to cancel your current plan? You may lose premium features immediately."
+        message="Are you sure you want to cancel your current plan? You may lose premium features."
         confirmText="Yes, Cancel"
         cancelText="Keep Plan"
       />

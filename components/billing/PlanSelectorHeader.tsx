@@ -62,7 +62,7 @@ export default function PlanSelectorHeader({
                       }}
                     >
                       <Text as="span" variant="bodySm">
-                        ✔ Up to <b>10,000</b> monthly views
+                        ✔ Up to <b>Unlimited</b> monthly views
                       </Text>
                       <Text as="span" variant="bodySm">
                         ✔ Unlimited simple bars

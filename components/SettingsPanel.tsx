@@ -23,7 +23,6 @@ import CalendarPicker from "./CalendarPicker";
 import { announcementOptions } from "@/lib/constants";
 import type { Settings, ButtonPosition } from "@/app/types/settings";
 
-
 // -----------------------
 // Props
 // -----------------------
@@ -125,10 +124,54 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       return;
     }
 
+    // 🔽 Filter relevant settings based on announcement type and toggles
+    const filteredSettings: Partial<Settings> = {
+      announcementType: settings.announcementType,
+      title: settings.title,
+    };
+
+    if (
+      settings.announcementType === "Marquee" ||
+      settings.announcementType === "Carousel"
+    ) {
+      filteredSettings.messages = settings.messages;
+    }
+
+    if (settings.announcementType === "Marquee") {
+      filteredSettings.marqueeSpeed = settings.marqueeSpeed;
+    }
+
+    if (settings.announcementType === "Simple") {
+      filteredSettings.endDate = settings.endDate;
+      filteredSettings.showTimer = settings.showTimer;
+      filteredSettings.showButton = settings.showButton;
+
+      if (settings.showButton) {
+        filteredSettings.buttonLabel = settings.buttonLabel;
+        filteredSettings.buttonPosition = settings.buttonPosition;
+        filteredSettings.enableButtonLink = settings.enableButtonLink;
+        filteredSettings.buttonUrl = settings.buttonUrl;
+      }
+    }
+
+    // Always include color settings
+    filteredSettings.bgColor = settings.bgColor;
+    filteredSettings.textColor = settings.textColor;
+
+    // Optional view logic
+    if (settings.enableViewLimit) {
+      filteredSettings.enableViewLimit = true;
+      filteredSettings.maxViews = settings.maxViews;
+    }
+
+    if (settings.enableViewCount) {
+      filteredSettings.enableViewCount = true;
+    }
+
     const payload = {
       name: settings.title || "Untitled",
       status: "Paused",
-      settings,
+      settings: filteredSettings,
       shop,
     };
 
@@ -171,9 +214,11 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
       <Card>
         <Card>
-          <Text as="h2" variant="bodyMd">
-            Countdown Banner Settings
-          </Text>
+          <div className="px-0 pb-2">
+            <Text as="h2" variant="bodyMd" fontWeight="bold">
+              Countdown Banner Settings
+            </Text>
+          </div>
 
           <FormLayout>
             <Select
@@ -183,12 +228,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
               value={settings.announcementType}
             />
 
-            <TextField
-              label="Title"
-              value={settings.title}
-              onChange={handleStringChange("title")}
-              autoComplete="off"
-            />
+            {settings.announcementType === "Simple" && (
+              <TextField
+                label="Title"
+                value={settings.title}
+                onChange={handleStringChange("title")}
+                autoComplete="off"
+              />
+            )}
             {settings.announcementType !== "Simple" && (
               <MessagesInput
                 settings={settings}
@@ -244,10 +291,12 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
             <Divider />
 
-            <FinalActions
-              onSave={saveAnnouncement}
-              onBack={() => router.push("/custombar")}
-            />
+            <div className="sticky bottom-0 translate-y-[-30px] bg-white px-4 pt-4 pb-0 border-t z-10">
+              <FinalActions
+                onSave={saveAnnouncement}
+                onBack={() => router.push("/custombar")}
+              />
+            </div>
           </FormLayout>
         </Card>
       </Card>

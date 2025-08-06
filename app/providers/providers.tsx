@@ -16,6 +16,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <Link href="/dashboard">Dashboard</Link>
           <Link href="/custombar">Customize Banner</Link>
           <Link href="/billing">Billing</Link>
+          <Link href="/manual">How to use</Link>
 
         </ui-nav-menu>
         <SessionProvider>{children}</SessionProvider>

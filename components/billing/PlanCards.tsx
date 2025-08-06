@@ -1,6 +1,6 @@
 "use client";
 
-import { Text, Button, Spinner } from "@shopify/polaris";
+import { Text, Button } from "@shopify/polaris";
 import { useMemo, useEffect } from "react";
 
 export default function PlanCard({
@@ -14,6 +14,7 @@ export default function PlanCard({
   subscriptionId,
   planExpiresOn,
   trialEndsOn,
+  billingStatus,
   disabled,
 }: {
   type: "Free" | "Premium";
@@ -26,6 +27,7 @@ export default function PlanCard({
   subscriptionId?: string | null;
   planExpiresOn?: Date | string | null;
   trialEndsOn?: Date | string | null;
+  billingStatus?: string;
   disabled?: boolean;
 }) {
   const isPremium = type === "Premium";
@@ -40,72 +42,76 @@ export default function PlanCard({
     expiryDate instanceof Date && !isNaN(expiryDate.getTime());
 
   const isInTrial = isTrialValid && today < trialEndDate;
-  const hasPremiumAccess = isInTrial || (isPlanValid && today < expiryDate);
+
   const normalizedPlan = activePlan?.toLowerCase().replace(" plan", "").trim();
+  const isCancelled =
+    billingStatus === "cancelled" || normalizedPlan === "scheduled cancel";
+
+  const hasPremiumAccess =
+    isInTrial ||
+    (normalizedPlan === "premium" &&
+      !isCancelled &&
+      isPlanValid &&
+      today < expiryDate);
 
   const isSubscribed = ["premium", "pending", "scheduled cancel"].includes(
     normalizedPlan,
   );
-  const isCancelled = normalizedPlan === "scheduled cancel";
 
-  useEffect(() => {
-    const expiryDate = planExpiresOn ? new Date(planExpiresOn) : null;
-    const trialEndDate = trialEndsOn ? new Date(trialEndsOn) : null;
-
-    console.log("🧠 PlanCard Rendered:");
-    console.log("👉 type:", type);
-    console.log("👉 activePlan:", activePlan);
-    console.log("👉 isSubscribed:", isSubscribed);
-    console.log("👉 isCancelled:", isCancelled);
-    console.log("👉 subscriptionId:", subscriptionId);
-    console.log("👉 planExpiresOn:", expiryDate?.toISOString());
-    console.log("👉 trialEndsOn:", trialEndDate?.toISOString());
-    console.log("👉 isInTrial:", isInTrial);
-    console.log("👉 hasPremiumAccess:", hasPremiumAccess);
-    console.log("👉 isLoading:", isLoading);
-  }, [
-    type,
+  useEffect(() => {}, [
     activePlan,
-    subscriptionId,
-    planExpiresOn,
+    billingStatus,
     trialEndsOn,
+    planExpiresOn,
     isInTrial,
+    hasPremiumAccess,
     isSubscribed,
     isCancelled,
-    isLoading,
-    hasPremiumAccess,
+    isPremium,
   ]);
 
   const shouldHighlight = useMemo(() => {
-    const result =
-      (isPremium && hasPremiumAccess) || (!isPremium && !hasPremiumAccess);
-    console.log("🎨 shouldHighlight:", result);
-    return result;
+    return (isPremium && hasPremiumAccess) || (!isPremium && !hasPremiumAccess);
   }, [isPremium, hasPremiumAccess]);
 
   const renderButton = () => {
-    const trialExpired = isTrialValid && today >= trialEndDate;
-    const planExpired = isPlanValid && today >= expiryDate;
-
+    console.log("🔘 Rendering button for plan type:", type);
     if (isPremium) {
       if (isSubscribed && subscriptionId) {
         if (isCancelled && isInTrial) {
+          console.log("🟡 Trial is active and subscription is cancelled.");
           return (
-            <Button fullWidth size="medium" variant="primary" disabled>
+            <div
+              style={{
+                width: "100%",
+                padding: "4px 16px",
+                textAlign: "center",
+                backgroundColor: "#171516",
+                borderRadius: "8px",
+                fontWeight: 600,
+                fontSize: "13px",
+                color: "#F7FAF5",
+                fontFamily: "Inter, sans-serif",
+                letterSpacing: "0.2px",
+                cursor: "not-allowed",
+              }}
+            >
               Trial active until {trialEndDate?.toLocaleDateString()}
-            </Button>
+            </div>
           );
         }
 
         if (isCancelled && !isInTrial) {
+          console.log("🔴 Plan has expired.");
           return (
             <Button fullWidth size="medium" variant="primary" disabled>
-              {`Plan active until ${expiryDate?.toLocaleDateString() ?? "Unknown date"}`}
+              Plan expired
             </Button>
           );
         }
 
         if (isInTrial) {
+          console.log("🧪 Trial is active.");
           return (
             <Button
               fullWidth
@@ -121,6 +127,7 @@ export default function PlanCard({
           );
         }
 
+        console.log("🟢 Active premium subscription.");
         return (
           <Button
             fullWidth
@@ -135,7 +142,9 @@ export default function PlanCard({
           </Button>
         );
       }
+
       if (hasPremiumAccess) {
+        console.log("ℹ️ Has premium access (no subscriptionId).");
         return (
           <Button fullWidth size="medium" variant="primary" disabled>
             {isInTrial
@@ -145,6 +154,7 @@ export default function PlanCard({
         );
       }
 
+      console.log("🔓 Show subscribe button (Start Free Trial).");
       return (
         <Button
           fullWidth
@@ -158,22 +168,31 @@ export default function PlanCard({
         </Button>
       );
     }
-
-    // Free Plan fallback
-    let label = "You're on Free Plan";
-
-    if (hasPremiumAccess) {
-      label = "Using All Features";
-    } else if (isCancelled && isPlanValid && expiryDate && today < expiryDate) {
-      label = `Premium active until ${expiryDate.toLocaleDateString()}`;
+    if (!isPremium) {
+      const label =
+        hasPremiumAccess && !isPremium ? "Using All Features" : "You're on Free Plan";
+    
+      return (
+        <div
+          style={{
+            width: "100%",
+            padding: "4px 16px",
+            textAlign: "center",
+            backgroundColor: "#171516",
+            borderRadius: "8px",
+            fontWeight: 600,
+            fontSize: "13px",
+            color: "#F7FAF5",
+            fontFamily: "Inter, sans-serif",
+            letterSpacing: "0.2px",
+            cursor: "not-allowed",
+          }}
+        >
+          {label}
+        </div>
+      );
     }
-
-    return (
-      <Button fullWidth size="medium" variant="primary" disabled>
-        {label}
-      </Button>
-    );
-  };
+  }    
 
   return (
     <div
@@ -213,7 +232,12 @@ export default function PlanCard({
           </Text>
 
           <div style={{ marginTop: "16px", marginBottom: "12px" }}>
-            <div style={{ display: "flex", justifyContent: "center" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
               {renderButton()}
             </div>
           </div>

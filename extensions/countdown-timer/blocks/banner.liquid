@@ -2,12 +2,15 @@
   <div
     id="announcement-banner-{{ section.id }}"
     data-banner-id="{{ block.settings.banner_id }}"
+      style="position: relative;"
+
   >
-    <div
+  <div
   id="announcement-banner-{{ section.id }}"
   class="hide-on-load"
   data-banner-id="{{ block.settings.banner_id }}"
 >
+
   <div style="text-align: center; padding: 12px; background: #f9f9f9;">
     Loading banner...
   </div>
@@ -31,7 +34,6 @@
       width: 100%;
       font-size: 1.6rem;
       font-weight: 600;
-      margin-top: 6px;
       padding: 5px;
     }
     .announcement-row {
@@ -66,36 +68,90 @@
       padding: 15px;
     }
  .btn-top {
-  margin-top: 8px;
-  padding: 2px;
+  padding: 6px;
   display: flex;
   justify-content: center;
 }
 
 
 .btn-bottom {
-   margin-bottom: 8px;
   padding: 2px;
   display: flex;
   justify-content: center;
 }
 
 .btn-left {
-  position: fixed;
-  top: 56%;
+  position: absolute;
+  top: 50%;
   left: 60px;
   transform: translateY(-50%);
   z-index: 9999;
 }
 
 .btn-right {
-  position: fixed;
-  bottom: 56%;
+  position: absolute;
+  bottom: 10%;
   right: 60px;
   transform: translateY(-50%);
   z-index: 9999;
 }
 
+/* ✅ Responsive tweaks for tablets (≤768px) */
+@media (max-width: 768px) {
+  .btn-left {
+    left: 30px;
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  .btn-right {
+    right: 30px;
+    bottom: 12%;
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  .btn-top,
+  .btn-bottom {
+    padding: 4px;
+  }
+}
+
+@media (max-width: 768px) {
+  .btn-left {
+    left: 30px;
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  .btn-right {
+    right: 30px;
+    bottom: 12%;
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  .btn-top,
+  .btn-bottom {
+    padding: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-right,
+  .btn-left {
+    position: relative;
+    bottom: 10%;
+    right: 1px;
+    margin: 21px;
+    transform: translateY(-50%) scale(0.9);
+    z-index: 9999;
+  }
+}
+@media (max-width: 480px) {
+  .btn-left {
+    position:relative;
+padding-right:59px;
+margin:21px;
+
+ }
+}
     .countdown-unit {
       background: rgba(255, 255, 255, 0.4);
       backdrop-filter: blur(4px);
@@ -188,7 +244,7 @@ if (localStorage.getItem(sessionKey) === "hidden") {
   const sectionId = "{{ section.id }}";
   const container = document.querySelector(`#announcement-banner-${sectionId}`);
   const bannerId = container?.dataset?.bannerId;
-  const appUrl = "https://arbor-called-sk-width.trycloudflare.com";
+  const appUrl = "https://ambassador-prospect-tells-cabin.trycloudflare.com";
   const sessionKey = `banner_viewed_${bannerId}_this_session`;
   const inEditor = window.Shopify && Shopify.designMode;
 

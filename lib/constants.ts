@@ -22,11 +22,11 @@ export const buttonPositionOptions = Object.values(ButtonPosition).map((pos) => 
   value: pos,
 }));
 export const PLAN_VIEW_LIMITS = {
-  Free: 500,
+  Free: 1000,
   Premium: Infinity,
-  Trial: 100,
+  Trial: Infinity,
   Pro: Infinity,
-  Basic: 500,
+  // Basic: 500,
 } as const;
 
 export type PlanName = keyof typeof PLAN_VIEW_LIMITS;

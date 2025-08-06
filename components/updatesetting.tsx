@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Select,
@@ -18,7 +18,7 @@ import ButtonOptions from "./ButtonOptions";
 import CalendarPicker from "./CalendarPicker";
 
 import { announcementOptions } from "@/lib/constants";
-import type { Settings} from "@/app/types/settings";
+import type { Settings } from "@/app/types/settings";
 
 interface SettingsPanelProps {
   settings: Settings;
@@ -31,14 +31,23 @@ interface SettingsPanelProps {
 const SettingsPanel: React.FC<SettingsPanelProps> = ({
   settings,
   setSettings,
+  resetViews,
+  onSave,
 }) => {
-  const [calendarDate, setCalendarDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
-  );
-  const [calendarTime, setCalendarTime] = useState<string>("23:59");
+  const [calendarDate, setCalendarDate] = useState<string>("");
+  const [calendarTime, setCalendarTime] = useState<string>("00:00");
   const [showCalendar, setShowCalendar] = useState<boolean>(false);
   const [showColors, setShowColors] = useState<boolean>(false);
   const [newMessage, setNewMessage] = useState<string>("");
+
+  // 🕒 Extract initial date/time from settings.endDate
+  useEffect(() => {
+    if (settings.endDate) {
+      const [datePart, timePart] = settings.endDate.split("T");
+      setCalendarDate(datePart);
+      setCalendarTime(timePart?.slice(0, 5) || "00:00");
+    }
+  }, [settings.endDate]);
 
   const handleChange =
     (field: keyof Settings) =>
@@ -71,14 +80,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
         You can preview your applied settings in the live banner above.
       </div>
 
-      <div className="px-4 pb-2">
+      <div className="px-0 pb-2">
         <Text as="h2" variant="bodyMd" fontWeight="bold">
           Countdown Banner Settings
         </Text>
       </div>
 
       <FormLayout>
-        {/* Type Selection */}
+        {/* Announcement Type */}
         <Select
           label="Announcement Type"
           options={announcementOptions}
@@ -86,15 +95,16 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
           value={announcementType}
         />
 
-        {/* Title */}
-        <TextField
-          label="Title"
-          value={settings.title}
-          onChange={handleChange("title")}
-          autoComplete="off"
-        />
+        {settings.announcementType === "Simple" && (
+          <TextField
+            label="Title"
+            value={settings.title}
+            onChange={handleChange("title")}
+            autoComplete="off"
+          />
+        )}
 
-        {/* Messages input for Marquee/Carousel */}
+        {/* Messages (Marquee / Carousel only) */}
         {announcementType !== "Simple" && (
           <MessagesInput
             settings={settings}
@@ -104,7 +114,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
           />
         )}
 
-        {/* Calendar Picker for Simple */}
+        {/* Calendar for Simple + showTimer */}
         {announcementType === "Simple" && (
           <CalendarPicker
             settings={settings}
@@ -119,19 +129,18 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
           />
         )}
 
-        {/* Toggle Color Options */}
+        {/* Show color options */}
         <Checkbox
           label="Show Color Options"
           checked={showColors}
           onChange={setShowColors}
         />
 
-        {/* Color Picker Section */}
         {showColors && (
           <ColorPicker settings={settings} setSettings={setSettings} />
         )}
 
-        {/* Button Options */}
+        {/* Button config (Simple only) */}
         {announcementType === "Simple" && (
           <ButtonOptions
             settings={settings}
@@ -140,7 +149,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
           />
         )}
 
-        {/* Marquee Speed Slider */}
+        {/* Marquee Speed slider */}
         {announcementType === "Marquee" && (
           <RangeSlider
             label="Marquee Speed (seconds)"
@@ -148,11 +157,21 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
             max={60}
             step={1}
             value={settings.marqueeSpeed}
-            onChange={(value) =>
-              handleChange("marqueeSpeed")(value as number)
-            }
+            onChange={(value) => handleChange("marqueeSpeed")(value as number)}
             output
           />
+        )}
+
+        {/* Reset views button (optional) */}
+        {resetViews && (
+          <div className="pt-2">
+            <button
+              onClick={resetViews}
+              className="text-sm text-red-600 hover:underline"
+            >
+              Reset View Count
+            </button>
+          </div>
         )}
 
         <Divider />

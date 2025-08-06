@@ -3,7 +3,7 @@
 client_id = "96b5ec3c0cdf81552a577ceab5710818"
 name = "Billing-test"
 handle = "billing-test-34"
-application_url = "https://arbor-called-sk-width.trycloudflare.com"
+application_url = "https://ambassador-prospect-tells-cabin.trycloudflare.com"
 embedded = true
 
 [build]
@@ -22,9 +22,9 @@ use_legacy_install_flow = false
 
 [auth]
 redirect_urls = [
-  "https://arbor-called-sk-width.trycloudflare.com/auth/callback",
-  "https://arbor-called-sk-width.trycloudflare.com/auth/shopify/callback",
-  "https://arbor-called-sk-width.trycloudflare.com/api/auth/callback"
+  "https://ambassador-prospect-tells-cabin.trycloudflare.com/auth/callback",
+  "https://ambassador-prospect-tells-cabin.trycloudflare.com/auth/shopify/callback",
+  "https://ambassador-prospect-tells-cabin.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

@@ -1,4 +1,3 @@
-// components/CurrentPlanCard.tsx
 "use client";
 
 import { Layout, Card, Text, ProgressBar } from "@shopify/polaris";

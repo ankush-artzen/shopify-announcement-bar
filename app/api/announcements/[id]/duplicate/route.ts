@@ -31,7 +31,7 @@ export async function POST(
     let count = 0;
 
     while (true) {
-      const suffix = count === 0 ? " (Copy)" : ` (Copy ${count + 1})`;
+      const suffix = count === 0 ? " (duplicate)" : ` (duplicate ${count + 1})`;
       const name = `${baseName}${suffix}`;
 
       try {

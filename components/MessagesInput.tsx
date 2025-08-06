@@ -11,7 +11,6 @@ interface MessagesInputProps {
 
 // Your MessagesInput component logic here...
 
-
 const MessagesInput: React.FC<MessagesInputProps> = ({
   settings,
   setSettings,
@@ -62,7 +61,7 @@ const MessagesInput: React.FC<MessagesInputProps> = ({
           marginBottom: "16px",
         }}
       >
-        {settings.messages.map((msg, index) => (
+        {(settings.messages ?? []).map((msg, index) => (
           <Tag
             key={index}
             onRemove={() => {

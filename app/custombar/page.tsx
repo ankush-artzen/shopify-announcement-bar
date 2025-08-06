@@ -148,21 +148,36 @@ export default function CustomBanner() {
           onDismiss={dismissToast}
         />
       )}
-
+      {/* <Page
+        fullWidth
+        title="Edit Announcement"
+        backAction={{
+          content: "Back",
+          onAction: () => router.back(),
+        }}
+      ></Page> */}
       <Page
         title="Announcements"
+        backAction={{
+          content: "Back",
+          onAction: () => router.back(),
+        }}
         primaryAction={{
           content: "New Announcement",
-
           onAction: () => router.push("/custombar/add"),
         }}
       >
         <Layout>
           <Layout.Section>
-            <Card>
-              <Text as="h6" variant="bodyLg" fontWeight="bold">
+            {/* <Card>
+              <Text as="h2" variant="headingMd" fontWeight="bold">
                 Your Announcements
               </Text>
+            </Card> */}
+            <Card>
+              {/* <Text as="h2" variant="headingLg" fontWeight="bold">
+                Your Announcements
+              </Text> */}
 
               {isLoading ? (
                 <div style={{ textAlign: "center", padding: "20px" }}>

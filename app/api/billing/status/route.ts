@@ -9,11 +9,16 @@ export async function GET(req: NextRequest) {
   const token = authHeader?.replace("Bearer ", "");
 
   if (!token) {
-    return NextResponse.json({ error: "Missing session token" }, { status: 401 });
+    return NextResponse.json(
+      { error: "Missing session token" },
+      { status: 401 },
+    );
   }
 
   try {
-    const payload = JSON.parse(Buffer.from(token.split(".")[1], "base64").toString("utf8"));
+    const payload = JSON.parse(
+      Buffer.from(token.split(".")[1], "base64").toString("utf8"),
+    );
     const shop = payload.dest.replace(/^https:\/\//, "");
     console.log("🔓 Shop from token:", shop);
 
@@ -26,7 +31,10 @@ export async function GET(req: NextRequest) {
     }
 
     if (!accessToken) {
-      return NextResponse.json({ error: "Missing access token" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Missing access token" },
+        { status: 401 },
+      );
     }
 
     // 🔍 Get subscription from Shopify
@@ -51,14 +59,15 @@ export async function GET(req: NextRequest) {
           "X-Shopify-Access-Token": accessToken,
         },
         body: JSON.stringify({ query }),
-      }
+      },
     );
     const result = await response.json();
-    const subscriptions = result?.data?.currentAppInstallation?.activeSubscriptions || [];
+    const subscriptions =
+      result?.data?.currentAppInstallation?.activeSubscriptions || [];
     console.log("📦 Subscriptions from Shopify:", subscriptions);
 
     const activeSub = subscriptions.find(
-      (sub: any) => sub.status?.toLowerCase() === "active"
+      (sub: any) => sub.status?.toLowerCase() === "active",
     );
     if (activeSub) {
       console.log("✅ Active subscription found:", activeSub);
@@ -72,13 +81,22 @@ export async function GET(req: NextRequest) {
     console.log("💾 Billing record from DB:", billing);
 
     const today = new Date();
-    const trialEndsOn = billing?.trialEndsOn ? new Date(billing.trialEndsOn) : null;
-    const planExpiresOn = billing?.planExpiresOn ? new Date(billing.planExpiresOn) : null;
+    const trialEndsOn = billing?.trialEndsOn
+      ? new Date(billing.trialEndsOn)
+      : null;
+    const planExpiresOn = billing?.planExpiresOn
+      ? new Date(billing.planExpiresOn)
+      : null;
     const isTrialActive = trialEndsOn ? trialEndsOn > today : false;
     const isPlanValid = planExpiresOn ? planExpiresOn > today : false;
     const relevantDate = isTrialActive ? trialEndsOn : planExpiresOn;
     const daysLeft = relevantDate
-      ? Math.max(0, Math.ceil((relevantDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)))
+      ? Math.max(
+          0,
+          Math.ceil(
+            (relevantDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+          ),
+        )
       : null;
 
     console.log("📆 Trial ends on:", trialEndsOn);
@@ -102,9 +120,9 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // ✅ CASE 2: DB says cancelled but still in valid trial/expiry = Pending
-    if ((isTrialActive || isPlanValid) && billing?.billingStatus === "cancelled") {
-      console.log("⚠️ CASE 2: Cancelled billing but still in trial/valid => Pending");
+    // ✅ CASE 2: Trial active and billing is cancelled => Pending
+    if (isTrialActive && billing?.billingStatus === "cancelled") {
+      console.log("⚠️ CASE 2: Cancelled billing but still in trial => Pending");
       return NextResponse.json({
         plan: "Pending",
         subscriptionId: null,
@@ -133,6 +151,9 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error("❌ Billing error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

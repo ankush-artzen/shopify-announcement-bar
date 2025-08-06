@@ -162,6 +162,7 @@ const AddCountdownBannerPage: React.FC = () => {
         title="Preview"
         backAction={{ content: "Back", onAction: () => router.back() }}
       >
+        
         {/* Preview Banner */}
         {viewAllowed && (
           <div
@@ -243,7 +244,14 @@ const AddCountdownBannerPage: React.FC = () => {
         )}
 
         {/* Settings Panel */}
-        <div className="fixed bottom-[-24px] left-0 w-full h-[400px] bg-white z-30 overflow-y-auto shadow-2xl border-t px-4 py-6">
+        {/* <div
+  className={`${
+    showTimer ? "bottom-[-76px]" : "bottom-0"
+  } fixed left-0 w-full h-[400px] bg-white z-30 overflow-y-auto shadow-2xl border-t px-4 py-6`}
+>
+  </div> */}
+
+        <div className="fixed bottom-[-36px] left-0 w-full h-[400px] bg-white z-30 overflow-y-auto shadow-2xl border-t px-4 py-6">
           <SettingsPanel
             settings={settings}
             setSettings={setSettings}
