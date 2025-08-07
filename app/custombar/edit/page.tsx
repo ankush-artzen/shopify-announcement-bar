@@ -215,7 +215,7 @@ const EditPage: React.FC = () => {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          status: "Paused",
+          status: "Active",
           settings: filteredSettings,
         }),
       });
