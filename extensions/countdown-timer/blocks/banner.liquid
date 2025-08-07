@@ -1,15 +1,11 @@
-{% if block.settings.banner_id != blank %}
-  <div
-    id="announcement-banner-{{ section.id }}"
-    data-banner-id="{{ block.settings.banner_id }}"
-      style="position: relative;"
-
-  >
-
-  <div style="text-align: center; padding: 12px; background: #f9f9f9;">
-    Loading banner...
+<div id="announcement-banner-wrapper-{{ section.id }}" style="position: relative;" data-banner-id="{{ block.settings.banner_id }}">
+  <div id="announcement-banner-{{ section.id }}" class="hide-on-load">
+    <div style="text-align: center; padding: 12px; background: #f9f9f9;">
+      Loading banner...
+    </div>
   </div>
 </div>
+
 
   </div>
 
