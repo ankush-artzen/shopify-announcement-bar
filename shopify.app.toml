@@ -3,7 +3,7 @@
 client_id = "27cfb0a6908c9b9ef41b7f496c762569"
 name = "Announcement Bar"
 handle = "announcement-banner-9"
-application_url = "https://shuttle-observation-conservative-built.trycloudflare.com"
+application_url = "https://detector-arrangements-precise-jj.trycloudflare.com"
 embedded = true
 
 [build]
@@ -22,9 +22,9 @@ use_legacy_install_flow = false
 
 [auth]
 redirect_urls = [
-  "https://shuttle-observation-conservative-built.trycloudflare.com/auth/callback",
-  "https://shuttle-observation-conservative-built.trycloudflare.com/auth/shopify/callback",
-  "https://shuttle-observation-conservative-built.trycloudflare.com/api/auth/callback"
+  "https://detector-arrangements-precise-jj.trycloudflare.com/auth/callback",
+  "https://detector-arrangements-precise-jj.trycloudflare.com/auth/shopify/callback",
+  "https://detector-arrangements-precise-jj.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
