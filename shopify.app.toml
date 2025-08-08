@@ -1,8 +1,8 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "96b5ec3c0cdf81552a577ceab5710818"
-name = "Billing-test"
-handle = "billing-test-34"
+client_id = "27cfb0a6908c9b9ef41b7f496c762569"
+name = "Announcement Bar"
+handle = "announcement-banner-9"
 application_url = "https://shuttle-observation-conservative-built.trycloudflare.com"
 embedded = true
 
