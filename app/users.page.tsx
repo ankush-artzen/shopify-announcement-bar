@@ -102,13 +102,15 @@ export default function LandingPage() {
                 storefront.
               </Text>
 
-              <Button
-                variant="primary"
-                onClick={() => router.push("/custombar")}
-                size="medium"
-              >
-                Preview Now
-              </Button>
+              <div style={{ width: "120px" }}>
+                <Button
+                  variant="primary"
+                  size="slim"
+                  onClick={() => router.push("/custombar")}
+                >
+                  Preview Now
+                </Button>
+              </div>
             </BlockStack>
           </Card>
         </Layout.Section>

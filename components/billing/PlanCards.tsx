@@ -132,7 +132,7 @@ export default function PlanCard({
           <Button
             fullWidth
             size="medium"
-            variant="tertiary"
+            variant="primary"
             tone="critical"
             onClick={() => onCancel?.()}
             disabled={isLoading}

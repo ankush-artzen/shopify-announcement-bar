@@ -58,7 +58,7 @@ export default function HowToUsePage() {
                     <InlineStack align="start" gap="400">
                       <InlineStack align="center" blockAlign="center">
                         <Box
-                          padding="200"
+                          padding="400"
                           borderRadius="200"
                           background="bg-surface-secondary"
                           minWidth="40px"

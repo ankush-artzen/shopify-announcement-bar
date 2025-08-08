@@ -249,7 +249,7 @@ export default function CustomBanner() {
                                 </Text>
 
                                 <Button
-                                  size="slim"
+                                  size="micro"
                                   onClick={() => {
                                     navigator.clipboard.writeText(id);
                                     showToast("Banner ID copied to clipboard!");

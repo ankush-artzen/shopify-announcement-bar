@@ -20,18 +20,30 @@ export async function POST(
     }
 
     let baseName = original.name;
+    let startCount = 0;
 
-    // Remove any existing (duplicate...) suffix
-    baseName = baseName.replace(/\s*\(duplicate.*\)$/i, "");
-    
-    let count = 0;
+    // ✅ Detect existing duplicate number and set startCount accordingly
+    const match = baseName.match(/\(duplicate(?:\s+(\d+))?\)$/i);
+    if (match) {
+      // Remove the "(duplicate...)" part from baseName
+      baseName = baseName.replace(/\s*\(duplicate(?:\s+\d+)?\)$/i, "");
+      startCount = match[1] ? parseInt(match[1], 10) : 1;
+    }
+
+    let count = startCount;
     const uid = new ShortUniqueId({ length: 10 });
-    
+
     while (true) {
-      const suffix = count === 0 ? " (duplicate)" : ` (duplicate ${count + 1})`;
+      const suffix =
+        count === 0
+          ? " (duplicate)"
+          : count === 1
+          ? " (duplicate 2)"
+          : ` (duplicate ${count + 1})`;
+
       const name = `${baseName}${suffix}`;
       const newId = uid.rnd();
-    
+
       try {
         const duplicated = await prisma.announcement.create({
           data: {
@@ -43,13 +55,13 @@ export async function POST(
             groupId: original.groupId,
           },
         });
-    
+
         return NextResponse.json({ success: true, announcement: duplicated });
       } catch (error: any) {
         const isUniqueError =
           error instanceof Prisma.PrismaClientKnownRequestError &&
           error.code === "P2002";
-    
+
         if (!isUniqueError) {
           console.error("❌ Unexpected error:", error);
           return NextResponse.json(
@@ -57,11 +69,10 @@ export async function POST(
             { status: 500 }
           );
         }
-    
+
         count++; 
       }
     }
-    
   } catch (error: any) {
     console.error("❌ Critical error:", error);
     return NextResponse.json(
