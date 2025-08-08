@@ -33,9 +33,9 @@
     .announcement-title {
       text-align: center;
       width: 100%;
-      font-size: 1.6rem;
+      font-size: 1.9rem;
       font-weight: 600;
-      padding: 5px;
+      padding: 9px;
     }
     .announcement-row {
       display: flex;
@@ -83,15 +83,15 @@
 
 .btn-left {
   position: absolute;
-  top: 50%;
-  left: 60px;
+  top: 57%;
+  left: 67px;
   transform: translateY(-50%);
   z-index: 9999;
 }
 
 .btn-right {
   position: absolute;
-  bottom: 10%;
+  top: 57%;
   right: 60px;
   transform: translateY(-50%);
   z-index: 9999;
@@ -212,7 +212,7 @@ margin:21px;
       font-weight: 600;
       color: inherit;
       padding: 12px;
-
+    
 // 👉 Immediately hide if stored as hidden
 if (localStorage.getItem(sessionKey) === "hidden") {
   container.classList.add("hide-banner-content");
@@ -221,6 +221,7 @@ if (localStorage.getItem(sessionKey) === "hidden") {
 }
     }
   </style>
+
 
 <script>
 (async function () {
