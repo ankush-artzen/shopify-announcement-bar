@@ -236,7 +236,7 @@ if (localStorage.getItem(sessionKey) === "hidden") {
   // Step 1: Fetch banner settings
   let settings;
   try {
-    const res = await fetch(`${appUrl}/api/public/banner?id=${bannerId}`);
+    const res = await fetch(`https://shopify-announcement-bar.vercel.app/api/public/banner?id=${bannerId}`);
     const json = await res.json();
 
     if (!json.success || !json.data?.settings) {
