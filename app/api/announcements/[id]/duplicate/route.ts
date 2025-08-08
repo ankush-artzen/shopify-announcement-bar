@@ -19,21 +19,19 @@ export async function POST(
       );
     }
 
-    const uid = new ShortUniqueId({ length: 10 });
-    const newId = uid.rnd();
-
     let baseName = original.name;
-    const copyIndex = baseName.indexOf(" (Copy");
-    if (copyIndex !== -1) {
-      baseName = baseName.slice(0, copyIndex);
-    }
 
+    // Remove any existing (duplicate...) suffix
+    baseName = baseName.replace(/\s*\(duplicate.*\)$/i, "");
+    
     let count = 0;
-
+    const uid = new ShortUniqueId({ length: 10 });
+    
     while (true) {
       const suffix = count === 0 ? " (duplicate)" : ` (duplicate ${count + 1})`;
       const name = `${baseName}${suffix}`;
-
+      const newId = uid.rnd();
+    
       try {
         const duplicated = await prisma.announcement.create({
           data: {
@@ -45,14 +43,13 @@ export async function POST(
             groupId: original.groupId,
           },
         });
-
+    
         return NextResponse.json({ success: true, announcement: duplicated });
       } catch (error: any) {
         const isUniqueError =
           error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.code === "P2002" &&
-          error.meta?.target === "Announcement_name_shopId_key";
-
+          error.code === "P2002";
+    
         if (!isUniqueError) {
           console.error("❌ Unexpected error:", error);
           return NextResponse.json(
@@ -60,11 +57,11 @@ export async function POST(
             { status: 500 }
           );
         }
-
-        // Duplicate name, retry with next
-        count++;
+    
+        count++; 
       }
     }
+    
   } catch (error: any) {
     console.error("❌ Critical error:", error);
     return NextResponse.json(

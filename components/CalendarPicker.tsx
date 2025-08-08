@@ -39,11 +39,14 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
   return (
     <Box>
       <Checkbox
-        label="Enable Countdown Timer"
+        label={
+          <Text as="span" fontWeight="bold">
+            Enable Countdown Timer
+          </Text>
+        }
         checked={settings.showTimer}
         onChange={handleCheckbox("showTimer")}
       />
-
       {settings.showTimer && (
         <>
           <Box paddingBlockEnd="200">

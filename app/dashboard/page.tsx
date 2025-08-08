@@ -415,42 +415,33 @@ export default function CustomBanner() {
                           <Text as="h2" variant="headingSm" fontWeight="bold">
                             Free Plan Includes:
                           </Text>
-                          <ul style={{ marginLeft: "18px" }}>
+
+                          <ul
+                            style={{
+                              paddingLeft: "24px",
+                              listStylePosition: "outside",
+                            }}
+                          >
                             <li>Use multiple Announcement Bar</li>
                             <li>Basic View</li>
                           </ul>
                         </div>
-
-                        <div style={{ marginTop: "16px" }}>
+                        <div style={{ paddingLeft: "0px" }}>
                           <Text as="h2" variant="headingSm" fontWeight="bold">
                             Premium Plan Features
                           </Text>
-                          <ul style={{ marginLeft: "18px" }}>
-                            <li>
-                              <Tooltip content="Enable more than one bar at a time.">
-                                Multiple Active Bars
-                              </Tooltip>
-                            </li>
-                            <li>
-                              <Tooltip content="Target based on country, device, or page.">
-                                Advanced Targeting
-                              </Tooltip>
-                            </li>
-                            <li>
-                              <Tooltip content="Automatically rotate or schedule bars.">
-                                Bar Scheduling
-                              </Tooltip>
-                            </li>
-                            <li>
-                              <Tooltip content="Priority access to customer support.">
-                                Priority Support
-                              </Tooltip>
-                            </li>
-                            <li>
-                              <Tooltip content="Remove Powered by branding from bars.">
-                                Remove Branding
-                              </Tooltip>
-                            </li>
+
+                          <ul
+                            style={{
+                              paddingLeft: "24px",
+                              listStylePosition: "outside",
+                            }}
+                          >
+                            <li>Multiple Active Bars</li>
+                            <li>Advanced Targeting</li>
+                            <li>Bar Scheduling</li>
+                            <li>Priority Support</li>
+                            <li>Remove Branding</li>
                           </ul>
                         </div>
                       </>
@@ -461,7 +452,12 @@ export default function CustomBanner() {
                         <Text as="h2" variant="headingSm" fontWeight="bold">
                           Premium Plan Benefits:
                         </Text>
-                        <ul style={{ marginLeft: "18px" }}>
+                        <ul
+                          style={{
+                            paddingLeft: "0px",
+                            listStylePosition: "inside",
+                          }}
+                        >
                           <li>Unlimited active announcement bars</li>
                           <li>
                             Advanced targeting by country, device, and page
@@ -470,6 +466,7 @@ export default function CustomBanner() {
                           <li>Priority customer support</li>
                           <li>Unlimited views</li>
                         </ul>
+
                         <div style={{ marginTop: "12px" }}>
                           <Badge tone="success">
                             All premium features are active

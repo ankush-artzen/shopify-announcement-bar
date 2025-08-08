@@ -89,7 +89,11 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       <FormLayout>
         {/* Announcement Type */}
         <Select
-          label="Announcement Type"
+          label={
+            <Text as="span" fontWeight="bold">
+              Announcement Type
+            </Text>
+          }
           options={announcementOptions}
           onChange={handleChange("announcementType")}
           value={announcementType}
@@ -97,7 +101,11 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
         {settings.announcementType === "Simple" && (
           <TextField
-            label="Title"
+            label={
+              <Text as="span" fontWeight="bold">
+                Title
+              </Text>
+            }
             value={settings.title}
             onChange={handleChange("title")}
             autoComplete="off"
@@ -131,7 +139,11 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
         {/* Show color options */}
         <Checkbox
-          label="Show Color Options"
+          label={
+            <Text as="span" fontWeight="bold">
+              Show Color Options
+            </Text>
+          }
           checked={showColors}
           onChange={setShowColors}
         />
@@ -152,7 +164,11 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
         {/* Marquee Speed slider */}
         {announcementType === "Marquee" && (
           <RangeSlider
-            label="Marquee Speed (seconds)"
+            label={
+              <Text as="span" fontWeight="bold">
+                Marquee Speed (seconds)
+              </Text>
+            }
             min={5}
             max={60}
             step={1}

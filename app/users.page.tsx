@@ -9,11 +9,11 @@ import {
   MediaCard,
   Banner,
   BlockStack,
+  List,
+  Button,
 } from "@shopify/polaris";
 import { useRouter } from "next/navigation";
 import { StarFilledIcon } from "@shopify/polaris-icons";
-
-
 
 export default function LandingPage() {
   const router = useRouter();
@@ -28,15 +28,15 @@ export default function LandingPage() {
             background="bg-surface"
             roundedAbove="sm"
           >
-            <BlockStack gap="400" align="center">
+            <BlockStack gap="200" align="center">
               <Text variant="headingLg" as="h1" alignment="center">
                 Welcome to Announcement Pro
               </Text>
-              <Text variant="headingMd" as="h2" alignment="center">
+              <Text as="p" alignment="center">
                 Your all-in-one app for publishing powerful, on-brand store
                 banners
               </Text>
-              <Text as="p" variant="headingSm" alignment="center">
+              <Text as="p" alignment="center">
                 Create, manage, and schedule announcements that drive engagement
                 and increase conversions — all from a simple, intuitive
                 dashboard.
@@ -52,13 +52,9 @@ export default function LandingPage() {
             background="bg-surface"
             roundedAbove="sm"
           >
-            <BlockStack gap="300">
-              <Text as="h2" variant="headingLg">
-                Why Choose Announcement Pro?
-              </Text>
-
-              <BlockStack gap="200">
-                <div>
+            <BlockStack gap="200">
+              <List type="bullet">
+                <List.Item>
                   <Text variant="headingMd" as="h3">
                     Instant Setup
                   </Text>
@@ -66,9 +62,9 @@ export default function LandingPage() {
                     Easily design attention-grabbing banners, target specific
                     audiences, and track performance — with no coding required.
                   </Text>
-                </div>
+                </List.Item>
 
-                <div>
+                <List.Item>
                   <Text variant="headingMd" as="h3">
                     Targeted Display
                   </Text>
@@ -76,36 +72,45 @@ export default function LandingPage() {
                     Show banners based on behavior, region, or schedule. Reach
                     the right people at the right time.
                   </Text>
-                </div>
+                </List.Item>
 
-                <div>
+                <List.Item>
                   <Text variant="headingMd" as="h3">
                     Built for Merchants
                   </Text>
                   <Text as="p">
                     Whether you are running a flash sale or sharing store
                     updates, Announcement Pro helps you broadcast the right
-                    message  effortlessly.
+                    message effortlessly.
                   </Text>
-                </div>
-              </BlockStack>
+                </List.Item>
+              </List>
             </BlockStack>
           </Card>
         </Layout.Section>
 
         {/* Media Preview Section */}
         <Layout.Section>
-          <MediaCard
-            title="Live Preview"
-            description="Customize your banner and see exactly how it will appear in your storefront."
-            primaryAction={{
-              content: "Preview Now",
-              onAction: () => router.push("/custombar"),
-            }}
-            portrait
-          >
-            <></>
-          </MediaCard>
+          <Card padding="400">
+            <BlockStack gap="300">
+              <Text variant="headingMd" as="h3">
+                Live Preview
+              </Text>
+
+              <Text as="p">
+                Customize your banner and see exactly how it will appear in your
+                storefront.
+              </Text>
+
+              <Button
+                variant="primary"
+                onClick={() => router.push("/custombar")}
+                size="medium"
+              >
+                Preview Now
+              </Button>
+            </BlockStack>
+          </Card>
         </Layout.Section>
 
         {/* Testimonials Section */}
@@ -122,7 +127,7 @@ export default function LandingPage() {
               <Text as="p" alignment="center">
                 “This app made our promotions feel polished and professional.
                 Our click-through rates improved by 35%!”
-                <br />—  Founder @ Artzen
+                <br />— Founder @ Artzen
               </Text>
             </BlockStack>
           </Card>

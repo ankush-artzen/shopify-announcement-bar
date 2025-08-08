@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, Checkbox, TextField, Select, Divider } from "@shopify/polaris";
+import { Box, Checkbox, TextField, Select, Divider,Text} from "@shopify/polaris";
 import { buttonPositionOptions } from "@/lib/constants";
 
 type ButtonPosition = "top" | "bottom" | "left" | "right";
@@ -29,7 +29,11 @@ const ButtonOptions: React.FC<ButtonOptionsProps> = ({
     <>
       <Divider />
       <Checkbox
-        label="Show Button"
+        label={
+          <Text as="span" fontWeight="bold">
+            Show Button
+          </Text>
+        }
         checked={settings.showButton}
         onChange={handleCheckbox("showButton")}
       />
@@ -37,26 +41,43 @@ const ButtonOptions: React.FC<ButtonOptionsProps> = ({
       {settings.showButton && (
         <Box paddingBlockStart="400">
           <Checkbox
-            label="Enable Button Link"
+            label={
+              <Text as="span" fontWeight="bold">
+                Enable Button Link
+              </Text>
+            }
             checked={settings.enableButtonLink}
             onChange={handleCheckbox("enableButtonLink")}
           />
+
           <TextField
-            label="Button Label"
+            label={
+              <Text as="span" fontWeight="bold">
+                Button Label
+              </Text>
+            }
             value={settings.buttonLabel}
             onChange={handleChange("buttonLabel")}
             autoComplete="off"
-
           />
+
           <TextField
-            label="Button URL"
+            label={
+              <Text as="span" fontWeight="bold">
+                Button URL
+              </Text>
+            }
             value={settings.buttonUrl}
             onChange={handleChange("buttonUrl")}
             autoComplete="off"
-
           />
+
           <Select
-            label="Button Position"
+            label={
+              <Text as="span" fontWeight="bold">
+                Button Position
+              </Text>
+            }
             options={buttonPositionOptions}
             onChange={handleChange("buttonPosition")}
             value={settings.buttonPosition}
