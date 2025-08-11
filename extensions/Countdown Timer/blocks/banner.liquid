@@ -33,9 +33,9 @@
     .announcement-title {
       text-align: center;
       width: 100%;
-      font-size: 1.9rem;
+      font-size: 1.7rem;
       font-weight: 600;
-      padding: 9px;
+      padding: 2px;
     }
     .announcement-row {
       display: flex;
@@ -49,6 +49,7 @@
     .announcement-button { flex-shrink: 0; }
     .countdown-link-btn {
       display: inline-block;
+      margin: 7px;
       padding: 8px 20px;
       font-weight: 600;
       font-size: 14px;
@@ -66,7 +67,8 @@
       align-items: center;
       flex-wrap: wrap;
       gap: 10px;
-      padding: 15px;
+      margin: 3px;
+      padding: 8px;
     }
  .btn-top {
   padding: 6px;
@@ -83,7 +85,7 @@
 
 .btn-left {
   position: absolute;
-  top: 57%;
+  top: 50%;
   left: 67px;
   transform: translateY(-50%);
   z-index: 9999;
@@ -91,7 +93,7 @@
 
 .btn-right {
   position: absolute;
-  top: 57%;
+  top: 50%;
   right: 60px;
   transform: translateY(-50%);
   z-index: 9999;
@@ -136,17 +138,19 @@ margin:21px;
  }
 }
     .countdown-unit {
-      background: rgba(255, 255, 255, 0.4);
-      backdrop-filter: blur(4px);
-      border-radius: 3px;
-      padding: 4px 6px;
-      min-width: 38px;
-      text-align: center;
-      font-family: system-ui, sans-serif;
-      border: 1px solid #ccc;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-      color: inherit;
-    }
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(4px);
+  border-radius: 3px;
+  padding: 4px 6px;
+  width: 50px;
+  text-align: center;
+  font-family: system-ui, sans-serif;
+  border: 1px solid #ccc;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  color: inherit;
+  box-sizing: border-box; 
+}
+
     .countdown-unit span:first-child {
       display: block;
       font-size: 12px;
@@ -157,7 +161,6 @@ margin:21px;
       display: block;
       font-size: 10px;
       font-weight: 600;
-      text-transform: uppercase;
       letter-spacing: 0.5px;
       opacity: 0.8;
     }
@@ -221,7 +224,6 @@ if (localStorage.getItem(sessionKey) === "hidden") {
 }
     }
   </style>
-
 
 <script>
 (async function () {

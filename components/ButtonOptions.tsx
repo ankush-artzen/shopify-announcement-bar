@@ -40,7 +40,7 @@ const ButtonOptions: React.FC<ButtonOptionsProps> = ({
 
       {settings.showButton && (
         <Box paddingBlockStart="400">
-          <Checkbox
+          {/* <Checkbox
             label={
               <Text as="span" fontWeight="bold">
                 Enable Button Link
@@ -48,7 +48,7 @@ const ButtonOptions: React.FC<ButtonOptionsProps> = ({
             }
             checked={settings.enableButtonLink}
             onChange={handleCheckbox("enableButtonLink")}
-          />
+          /> */}
 
           <TextField
             label={

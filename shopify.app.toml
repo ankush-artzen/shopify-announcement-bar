@@ -3,7 +3,7 @@
 client_id = "27cfb0a6908c9b9ef41b7f496c762569"
 name = "Announcement Bar"
 handle = "announcement-banner-9"
-application_url = "https://detector-arrangements-precise-jj.trycloudflare.com"
+application_url = "https://minister-concerned-xbox-routine.trycloudflare.com"
 embedded = true
 
 [build]
@@ -22,9 +22,9 @@ use_legacy_install_flow = false
 
 [auth]
 redirect_urls = [
-  "https://detector-arrangements-precise-jj.trycloudflare.com/auth/callback",
-  "https://detector-arrangements-precise-jj.trycloudflare.com/auth/shopify/callback",
-  "https://detector-arrangements-precise-jj.trycloudflare.com/api/auth/callback"
+  "https://minister-concerned-xbox-routine.trycloudflare.com/auth/callback",
+  "https://minister-concerned-xbox-routine.trycloudflare.com/auth/shopify/callback",
+  "https://minister-concerned-xbox-routine.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
