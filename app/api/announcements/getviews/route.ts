@@ -6,20 +6,36 @@ export async function GET(req: Request) {
   const shop = searchParams.get("shop");
 
   if (!shop) {
-    return NextResponse.json({ success: false, error: "Missing shop parameter" }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: "Missing shop parameter" },
+      { status: 400 }
+    );
   }
 
   try {
-    const banners = await prisma.announcement.findMany({
-      where: { shop: { name: shop } },
+    // Fetch shop views directly from persistent field
+    const shopData = await prisma.shop.findUnique({
+      where: { name: shop },
       select: { views: true },
     });
 
-    const totalViews = banners.reduce((sum, banner) => sum + (banner.views || 0), 0);
+    if (!shopData) {
+      return NextResponse.json(
+        { success: false, error: "Shop not found" },
+        { status: 404 }
+      );
+    }
 
-    return NextResponse.json({ success: true, shop, totalViews });
+    return NextResponse.json({
+      success: true,
+      shop,
+      totalViews: shopData.views || 0,
+    });
   } catch (err) {
     console.error("❌ Error fetching total views for shop:", shop, err);
-    return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

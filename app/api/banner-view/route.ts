@@ -4,14 +4,17 @@ import { PLAN_VIEW_LIMITS } from "@/lib/constants";
 
 // CORS preflight handler
 export async function OPTIONS() {
-  return NextResponse.json({}, {
-    status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
-  });
+  return NextResponse.json(
+    {},
+    {
+      status: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+    }
+  );
 }
 
 export async function POST(req: NextRequest) {
@@ -30,6 +33,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Find the banner + related shop
     const banner = await prisma.announcement.findUnique({
       where: { id: bannerId },
       include: { shop: true },
@@ -50,6 +54,7 @@ export async function POST(req: NextRequest) {
     const shopId = banner.shopId;
     console.log("✅ Banner and Shop found:", { bannerId, shopId, shopDomain });
 
+    // Fetch billing info for plan check
     const billing = await prisma.billing.findFirst({
       where: { shop: shopDomain },
       orderBy: { billingOn: "desc" },
@@ -90,16 +95,18 @@ export async function POST(req: NextRequest) {
       currentViews: banner.views,
     });
 
+    // If view limit exceeded for banner
     if (maxViews !== Infinity && banner.views >= maxViews) {
       console.warn("🚫 View limit exceeded for banner:", banner.views);
 
-      const totalShopViews = await prisma.announcement.aggregate({
-        _sum: { views: true },
-        where: { shopId },
+      // Get total shop views from persistent shop.views field
+      const shopData = await prisma.shop.findUnique({
+        where: { id: shopId },
+        select: { views: true },
       });
 
       console.log("📉 Returning early due to view cap:", {
-        totalShopViews: totalShopViews._sum.views || 0,
+        totalShopViews: shopData?.views || 0,
       });
 
       return NextResponse.json(
@@ -109,7 +116,7 @@ export async function POST(req: NextRequest) {
           plan,
           currentViews: banner.views,
           maxViews,
-          totalShopViews: totalShopViews._sum.views || 0,
+          totalShopViews: shopData?.views || 0,
         },
         {
           status: 200,
@@ -118,21 +125,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Increment banner views
     const updatedBanner = await prisma.announcement.update({
       where: { id: bannerId },
       data: { views: { increment: 1 } },
     });
 
-    console.log("➕ Incremented view count:", {
-      updatedViews: updatedBanner.views,
+    // Increment persistent shop views
+    const updatedShop = await prisma.shop.update({
+      where: { id: shopId },
+      data: { views: { increment: 1 } },
     });
 
-    const totalShopViews = await prisma.announcement.aggregate({
-      _sum: { views: true },
-      where: { shopId },
+    console.log("➕ Incremented counts:", {
+      updatedBannerViews: updatedBanner.views,
+      updatedShopViews: updatedShop.views,
     });
 
-    const totalViews = totalShopViews._sum.views || 0;
     const shouldHide = updatedBanner.views >= maxViews;
 
     console.log("✅ Final response:", {
@@ -141,7 +150,7 @@ export async function POST(req: NextRequest) {
       currentViews: updatedBanner.views,
       maxViews,
       hideBanner: shouldHide,
-      totalShopViews: totalViews,
+      totalShopViews: updatedShop.views,
     });
 
     return NextResponse.json(
@@ -151,7 +160,7 @@ export async function POST(req: NextRequest) {
         plan,
         currentViews: updatedBanner.views,
         maxViews,
-        totalShopViews: totalViews,
+        totalShopViews: updatedShop.views,
       },
       {
         status: 200,
