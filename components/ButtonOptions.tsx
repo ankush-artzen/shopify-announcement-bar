@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, Checkbox, TextField, Select, Divider,Text} from "@shopify/polaris";
+import { Checkbox, TextField, Select, Divider, Text } from "@shopify/polaris";
 import { buttonPositionOptions } from "@/lib/constants";
 
 type ButtonPosition = "top" | "bottom" | "left" | "right";
@@ -28,6 +28,8 @@ const ButtonOptions: React.FC<ButtonOptionsProps> = ({
   return (
     <>
       <Divider />
+
+      {/* Always visible toggle */}
       <Checkbox
         label={
           <Text as="span" fontWeight="bold">
@@ -38,51 +40,48 @@ const ButtonOptions: React.FC<ButtonOptionsProps> = ({
         onChange={handleCheckbox("showButton")}
       />
 
+      {/* Show these only when showButton is true */}
       {settings.showButton && (
-        <Box paddingBlockStart="400">
-          {/* <Checkbox
-            label={
-              <Text as="span" fontWeight="bold">
-                Enable Button Link
-              </Text>
-            }
-            checked={settings.enableButtonLink}
-            onChange={handleCheckbox("enableButtonLink")}
-          /> */}
+        <>
+          <div style={{ marginTop: "8px" }}>
+            <TextField
+              label={
+                <Text as="span" fontWeight="bold">
+                  Button Label
+                </Text>
+              }
+              value={settings.buttonLabel}
+              onChange={handleChange("buttonLabel")}
+              autoComplete="off"
+            />
+          </div>
 
-          <TextField
-            label={
-              <Text as="span" fontWeight="bold">
-                Button Label
-              </Text>
-            }
-            value={settings.buttonLabel}
-            onChange={handleChange("buttonLabel")}
-            autoComplete="off"
-          />
+          <div style={{ marginTop: "10px" }}>
+            <TextField
+              label={
+                <Text as="span" fontWeight="bold">
+                  Button URL
+                </Text>
+              }
+              value={settings.buttonUrl}
+              onChange={handleChange("buttonUrl")}
+              autoComplete="off"
+            />
+          </div>
 
-          <TextField
-            label={
-              <Text as="span" fontWeight="bold">
-                Button URL
-              </Text>
-            }
-            value={settings.buttonUrl}
-            onChange={handleChange("buttonUrl")}
-            autoComplete="off"
-          />
-
-          <Select
-            label={
-              <Text as="span" fontWeight="bold">
-                Button Position
-              </Text>
-            }
-            options={buttonPositionOptions}
-            onChange={handleChange("buttonPosition")}
-            value={settings.buttonPosition}
-          />
-        </Box>
+          <div style={{ marginTop: "8px" }}>
+            <Select
+              label={
+                <Text as="span" fontWeight="bold">
+                  Button Position
+                </Text>
+              }
+              options={buttonPositionOptions}
+              onChange={handleChange("buttonPosition")}
+              value={settings.buttonPosition}
+            />
+          </div>
+        </>
       )}
     </>
   );
