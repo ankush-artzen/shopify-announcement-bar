@@ -329,11 +329,10 @@ console.log("🚫 Should Hide Banner:", hideBanner);
 if (showButton && buttonLabel && buttonUrl && buttonPosition === "top") {
   html += `
     <div class="announcement-button btn-top" style="text-align: center;">
-      ${
-        enableButtonLink
-          ? `<a href="${buttonUrl}" class="countdown-link-btn" style="color:${bgColor}; background:${textColor}; border: 1px solid ${textColor};">${buttonLabel}</a>`
-          : `<button class="countdown-link-btn" style="color:${bgColor}; background:${textColor}; border: 1px solid ${textColor};">${buttonLabel}</button>`
-      }
+      <a href="${buttonUrl}" class="countdown-link-btn"
+         style="color:${bgColor}; background:${textColor}; border: 1px solid ${textColor};">
+         ${buttonLabel}
+      </a>
     </div>`;
 }
 
@@ -364,13 +363,13 @@ if (type === "Marquee") {
 if (showButton && buttonLabel && buttonUrl && buttonPosition !== "top") {
   html += `
     <div class="announcement-button btn-${buttonPosition}" style="text-align: center;">
-      ${
-        enableButtonLink
-          ? `<a href="${buttonUrl}" class="countdown-link-btn" style="color:${bgColor}; background:${textColor}; border: 1px solid ${textColor};">${buttonLabel}</a>`
-          : `<button class="countdown-link-btn" style="color:${bgColor}; background:${textColor}; border: 1px solid ${textColor};">${buttonLabel}</button>`
-      }
+      <a href="${buttonUrl}" class="countdown-link-btn" 
+         style="color:${bgColor}; background:${textColor}; border: 1px solid ${textColor}; display:inline-block; padding:6px 12px; text-decoration:none; border-radius:4px;">
+        ${buttonLabel}
+      </a>
     </div>`;
 }
+
 
 html += `</div>`;
 container.innerHTML = html;
@@ -426,7 +425,7 @@ console.log("🎨 Banner rendered successfully.");
 
 {% schema %}
 {
-  "name": "Announcement Banner",
+  "name": "Smart Announcement Banner",
   "target": "section",
   "settings": [
     {
